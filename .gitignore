@@ -1,0 +1,36 @@
+# Environment & secrets — NEVER commit any of these
+.env
+.env.local
+.env.example
+.env.local.example
+.env.*.local
+backend/.env
+backend/.env.local
+backend/.env.example
+backend/.env.local.example
+web-dashboard/.env
+web-dashboard/.env.local
+web-dashboard/.env.example
+web-dashboard/.env.local.example
+node_modules
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+backend/uploads/
+
+# Node / Flutter
+node_modules/
+web-dashboard/dist/
+mobile/.dart_tool/
+mobile/build/
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db

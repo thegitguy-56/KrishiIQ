@@ -1,0 +1,67 @@
+version: '3.9'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: krishiiq
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: krishiiq_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U krishiiq"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  backend:
+    build: ./backend
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./backend/.env.local
+    environment:
+      DATABASE_URL: postgresql://krishiiq:password@postgres:5432/krishiiq_db
+      REDIS_URL: redis://redis:6379/0
+      SECRET_KEY: change-me-in-production
+      ENVIRONMENT: development
+    volumes:
+      - ./backend:/app
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  web-dashboard:
+    build: ./web-dashboard
+    ports:
+      - "5173:5173"
+    env_file:
+      - ./web-dashboard/.env.local
+    environment:
+      VITE_API_URL: http://backend:8000
+    volumes:
+      - ./web-dashboard:/app
+      - /app/node_modules
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
+  redis_data:
