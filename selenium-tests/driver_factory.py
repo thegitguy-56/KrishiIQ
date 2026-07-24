@@ -48,21 +48,15 @@ def _create_chrome(headless: bool) -> webdriver.Chrome:
         "profile.default_content_setting_values.notifications": 2,
     })
 
-    # browser-actions/setup-chrome sets CHROME_PATH and CHROMEDRIVER_PATH in CI
+    # browser-actions/setup-chrome sets CHROME_PATH in CI
     chrome_binary = os.environ.get("CHROME_PATH", "")
-    chromedriver_path = os.environ.get("CHROMEDRIVER_PATH", "")
 
     if chrome_binary:
         opts.binary_location = chrome_binary
         logger.info("Using Chrome binary from env: %s", chrome_binary)
 
-    if chromedriver_path:
-        svc = ChromeService(chromedriver_path)
-        logger.info("Using ChromeDriver from env: %s", chromedriver_path)
-    elif USE_WDM:
-        svc = ChromeService(ChromeDriverManager().install())
-    else:
-        svc = ChromeService()
+    # Let Selenium 4 (Selenium Manager) handle ChromeDriver automatically
+    svc = ChromeService()
 
     driver = webdriver.Chrome(service=svc, options=opts)
     driver.set_page_load_timeout(config.PAGE_LOAD_TIMEOUT)

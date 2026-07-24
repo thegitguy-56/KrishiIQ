@@ -194,30 +194,25 @@ def pytest_runtest_makereport(item, call):
 # JSON result collection
 # ─────────────────────────────────────────────────────────────────────────────
 
-@pytest.hookimpl(hookwrapper=True)
-def pytest_runtest_protocol(item, nextitem):
-    start = time.time()
-    outcome = yield
-    duration = round(time.time() - start, 3)
-
-    rep = getattr(item, "_report_sections", [])
-    status = "SKIPPED"
-    for phase in ("setup", "call", "teardown"):
-        report = getattr(item, f"_report_{phase}", None)
-        if report and report.passed:
-            status = "PASSED"
-        elif report and report.failed:
-            status = "FAILED"
-            break
-
-    markers = [m.name for m in item.iter_markers()]
-    _RESULTS.append({
-        "id":       item.nodeid,
-        "module":   item.module.__name__ if item.module else "",
-        "markers":  markers,
-        "status":   status,
-        "duration": duration,
-    })
+@pytest.hookimpl(tryfirst=True)
+def pytest_runtest_logreport(report):
+    """Collect test results for JSON report. Works with xdist on master node."""
+    if report.when == "call":
+        _RESULTS.append({
+            "id":       report.nodeid,
+            "module":   report.nodeid.split("::")[0].split("/")[-1].replace(".py", ""),
+            "markers":  [],  # Simplification for xdist
+            "status":   "PASSED" if report.passed else "FAILED" if report.failed else "SKIPPED",
+            "duration": report.duration,
+        })
+    elif report.when == "setup" and report.failed:
+        _RESULTS.append({
+            "id":       report.nodeid,
+            "module":   report.nodeid.split("::")[0].split("/")[-1].replace(".py", ""),
+            "markers":  [],
+            "status":   "FAILED",
+            "duration": report.duration,
+        })
 
 
 def pytest_sessionfinish(session, exitstatus):
