@@ -63,28 +63,17 @@ jobs:
           pip install -r selenium-tests/requirements.txt
         working-directory: ${{ github.workspace }}
 
-      # ── 4. Install Chrome ────────────────────────────────────────────────────
-      - name: Install Google Chrome (latest stable)
-        run: |
-          wget -q -O - https://dl.google.com/linux/linux_signing_key.pub \
-            | sudo gpg --dearmor -o /usr/share/keyrings/google-chrome.gpg
-          echo "deb [arch=amd64 signed-by=/usr/share/keyrings/google-chrome.gpg] \
-            http://dl.google.com/linux/chrome/deb/ stable main" \
-            | sudo tee /etc/apt/sources.list.d/google-chrome.list
-          sudo apt-get update -qq
-          sudo apt-get install -y google-chrome-stable
-          google-chrome --version
+      # ── 4. Install Chrome + matching ChromeDriver (CI-safe, no TTY needed) ──────
+      - name: Set up Chrome and ChromeDriver
+        uses: browser-actions/setup-chrome@v1
+        id: setup-chrome
+        with:
+          chrome-version: stable
 
-      # ── 5. Install ChromeDriver ───────────────────────────────────────────────
-      - name: Install matching ChromeDriver
+      - name: Verify Chrome installation
         run: |
-          CHROME_VERSION=$(google-chrome --version | sed 's/[^0-9]//g' | cut -c1-3)
-          pip install webdriver-manager
-          python -c "
-          from webdriver_manager.chrome import ChromeDriverManager
-          path = ChromeDriverManager().install()
-          print('ChromeDriver at:', path)
-          "
+          google-chrome --version || chrome --version || chromium --version || true
+          chromedriver --version || true
 
       # ── 6. Prepare report directories ────────────────────────────────────────
       - name: Prepare report directories
@@ -133,14 +122,16 @@ jobs:
             2>&1 | tee reports/logs/test-output.log
         working-directory: ${{ github.workspace }}/selenium-tests
         env:
-          BASE_URL:         ${{ env.BASE_URL }}
-          HEADLESS:         ${{ env.HEADLESS }}
-          OFFICER_PHONE:    ${{ env.OFFICER_PHONE }}
-          OFFICER_PASSWORD: ${{ env.OFFICER_PASSWORD }}
-          ADMIN_PHONE:      ${{ env.ADMIN_PHONE }}
-          ADMIN_PASSWORD:   ${{ env.ADMIN_PASSWORD }}
-          FARMER_PHONE:     ${{ env.FARMER_PHONE }}
-          FARMER_PASSWORD:  ${{ env.FARMER_PASSWORD }}
+          BASE_URL:          ${{ env.BASE_URL }}
+          HEADLESS:          ${{ env.HEADLESS }}
+          OFFICER_PHONE:     ${{ env.OFFICER_PHONE }}
+          OFFICER_PASSWORD:  ${{ env.OFFICER_PASSWORD }}
+          ADMIN_PHONE:       ${{ env.ADMIN_PHONE }}
+          ADMIN_PASSWORD:    ${{ env.ADMIN_PASSWORD }}
+          FARMER_PHONE:      ${{ env.FARMER_PHONE }}
+          FARMER_PASSWORD:   ${{ env.FARMER_PASSWORD }}
+          CHROME_PATH:       ${{ steps.setup-chrome.outputs.chrome-path }}
+          CHROMEDRIVER_PATH: ${{ steps.setup-chrome.outputs.chromedriver-path }}
 
       # ── 9. Generate all reports ───────────────────────────────────────────────
       - name: Generate reports (Excel, Dashboard, Summary)

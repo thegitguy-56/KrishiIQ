@@ -42,12 +42,24 @@ def _create_chrome(headless: bool) -> webdriver.Chrome:
     opts.add_argument("--disable-infobars")
     opts.add_argument(f"--window-size={config.WINDOW_WIDTH},{config.WINDOW_HEIGHT}")
     opts.add_argument("--lang=en-US")
+    opts.add_argument("--remote-debugging-port=0")
     opts.add_experimental_option("excludeSwitches", ["enable-logging"])
     opts.add_experimental_option("prefs", {
         "profile.default_content_setting_values.notifications": 2,
     })
 
-    if USE_WDM:
+    # browser-actions/setup-chrome sets CHROME_PATH and CHROMEDRIVER_PATH in CI
+    chrome_binary = os.environ.get("CHROME_PATH", "")
+    chromedriver_path = os.environ.get("CHROMEDRIVER_PATH", "")
+
+    if chrome_binary:
+        opts.binary_location = chrome_binary
+        logger.info("Using Chrome binary from env: %s", chrome_binary)
+
+    if chromedriver_path:
+        svc = ChromeService(chromedriver_path)
+        logger.info("Using ChromeDriver from env: %s", chromedriver_path)
+    elif USE_WDM:
         svc = ChromeService(ChromeDriverManager().install())
     else:
         svc = ChromeService()
