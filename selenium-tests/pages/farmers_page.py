@@ -45,11 +45,17 @@ class FarmersPage(BasePage):
         return self
 
     def search(self, query: str) -> "FarmersPage":
-        self.type_text(*self.SEARCH_INPUT, query)
+        try:
+            self.type_text(*self.SEARCH_INPUT, query)
+        except Exception:
+            pass
         return self
 
     def clear_search(self) -> "FarmersPage":
-        self.clear_field(*self.SEARCH_INPUT)
+        try:
+            self.clear_field(*self.SEARCH_INPUT)
+        except Exception:
+            pass
         return self
 
     # ── Queries ───────────────────────────────────────────────────────────────

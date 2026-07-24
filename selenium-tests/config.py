@@ -14,7 +14,7 @@ WINDOW_HEIGHT = int(os.environ.get("WINDOW_HEIGHT", "1080"))
 
 # ─── Timeouts (seconds) ───────────────────────────────────────────────────────
 IMPLICIT_WAIT = 0          # Always use explicit waits
-EXPLICIT_WAIT = 20         # Default explicit wait
+EXPLICIT_WAIT = 5          # Default explicit wait
 PAGE_LOAD_TIMEOUT = 60     # Max page load time
 RETRY_ATTEMPTS = 2         # Flaky-test reruns
 
