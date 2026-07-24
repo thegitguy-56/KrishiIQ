@@ -195,9 +195,11 @@ class BasePage:
     # ── Screenshots ─────────────────────────────────────────────────────────────
 
     def _screenshot(self, name: str = "screenshot") -> Optional[str]:
+        import re
+        safe_name = re.sub(r'[\\/*?:"<>|]', '_', name)
         os.makedirs(config.SCREENSHOTS_DIR, exist_ok=True)
         ts   = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
-        path = os.path.join(config.SCREENSHOTS_DIR, f"{name}_{ts}.png")
+        path = os.path.join(config.SCREENSHOTS_DIR, f"{safe_name}_{ts}.png")
         try:
             self.driver.save_screenshot(path)
             logger.info("Screenshot saved: %s", path)

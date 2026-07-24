@@ -252,7 +252,8 @@ def pytest_runtest_makereport(item, call):
               item.funcargs.get("authenticated_admin")
         if drv:
             ts   = datetime.now().strftime("%Y%m%d_%H%M%S")
-            name = item.nodeid.replace("::", "_").replace("/", "_").replace("\\", "_")
+            import re
+            name = re.sub(r'[\\/*?:"<>|]', '_', item.nodeid)
             path = os.path.join(config.SCREENSHOTS_DIR, f"FAIL_{name}_{ts}.png")
             try:
                 drv.save_screenshot(path)
