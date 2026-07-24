@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 const API_URL =
-  import.meta.env.VITE_API_URL || 'https://krishilq-backend.onrender.com'
+  import.meta.env.VITE_API_URL || 'https://krishiiq-6su1.onrender.com'
 
 const api = axios.create({
   baseURL: `${API_URL}/api/v1`,
@@ -46,11 +46,11 @@ api.interceptors.response.use(
           return api.request(error.config)
         } catch {
           localStorage.clear()
-          window.location.href = '/login'
+          window.location.href = '/#/login'
         }
       } else {
         localStorage.clear()
-        window.location.href = '/login'
+        window.location.href = '/#/login'
       }
     }
 
