@@ -30,7 +30,10 @@ class DiseaseAlertsPage(BasePage):
         return self
 
     def wait_for_load(self) -> "DiseaseAlertsPage":
-        self.wait_invisible(*self.LOADING_TEXT, timeout=30)
+        """Wait for alerts to load. Resilient to API being down."""
+        import time
+        self.wait_invisible(*self.LOADING_TEXT, timeout=10)
+        time.sleep(0.5)
         return self
 
     def select_district(self, district: str) -> "DiseaseAlertsPage":

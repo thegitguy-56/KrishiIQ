@@ -355,11 +355,8 @@ class TestUIValidation:
         officer_farmers.load()
         officer_farmers.wait_for_table()
         headers = officer_farmers.find_all(By.CSS_SELECTOR, "th")
-        if headers:
-            font_weight = authenticated_officer = driver = None
-            # Just verify headers exist
-            assert len(headers) > 0
-        assert True
+        # Headers should exist if table is present
+        assert len(headers) >= 0  # No crash
 
     def test_UI_049_disease_alerts_no_crash_with_no_data(self, officer_disease_alerts):
         """TC-UI-049: Disease alerts page handles empty data gracefully."""

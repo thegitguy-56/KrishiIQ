@@ -89,9 +89,9 @@ class TestAuthentication:
 
     def test_AUTH_012_phone_field_type_tel(self, driver):
         """TC-AUTH-012: Phone field has type='tel'."""
-        el = driver.find_element(By.CSS_SELECTOR, "input[type='tel']")
         page = LoginPage(driver).load()
-        assert "tel" in page.get_attribute(By.CSS_SELECTOR, "input[type='tel']", "type")
+        phone_type = page.get_attribute(*page.PHONE_INPUT, "type")
+        assert phone_type == "tel", f"Expected type='tel', got '{phone_type}'"
 
     def test_AUTH_013_phone_required(self, driver):
         """TC-AUTH-013: Phone field is marked required."""
