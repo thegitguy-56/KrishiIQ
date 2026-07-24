@@ -1,0 +1,240 @@
+name: Selenium E2E Tests
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+    branches: ["**"]
+  workflow_dispatch:
+    inputs:
+      base_url:
+        description: "Base URL to test against"
+        required: false
+        default: "https://thegitguy-56.github.io/KrishiIQ/"
+      headless:
+        description: "Run headless?"
+        required: false
+        default: "true"
+      parallelism:
+        description: "Number of parallel workers"
+        required: false
+        default: "4"
+
+# ── Permissions ───────────────────────────────────────────────────────────────
+permissions:
+  contents: read
+  actions: write
+
+env:
+  BASE_URL:         ${{ github.event.inputs.base_url || 'https://thegitguy-56.github.io/KrishiIQ/' }}
+  HEADLESS:         ${{ github.event.inputs.headless || 'true' }}
+  WORKER_COUNT:     ${{ github.event.inputs.parallelism || '4' }}
+  OFFICER_PHONE:    "9000000001"
+  OFFICER_PASSWORD: "officer123"
+  ADMIN_PHONE:      "9000000003"
+  ADMIN_PASSWORD:   "admin123"
+  FARMER_PHONE:     "9000000002"
+  FARMER_PASSWORD:  "farmer123"
+
+# ─────────────────────────────────────────────────────────────────────────────
+jobs:
+  selenium-tests:
+    name: Selenium E2E Test Suite
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      # ── 1. Checkout ──────────────────────────────────────────────────────────
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # ── 2. Python Setup ──────────────────────────────────────────────────────
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+          cache-dependency-path: selenium-tests/requirements.txt
+
+      # ── 3. Install Python dependencies ───────────────────────────────────────
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r selenium-tests/requirements.txt
+        working-directory: ${{ github.workspace }}
+
+      # ── 4. Install Chrome ────────────────────────────────────────────────────
+      - name: Install Google Chrome (latest stable)
+        run: |
+          wget -q -O - https://dl.google.com/linux/linux_signing_key.pub \
+            | sudo gpg --dearmor -o /usr/share/keyrings/google-chrome.gpg
+          echo "deb [arch=amd64 signed-by=/usr/share/keyrings/google-chrome.gpg] \
+            http://dl.google.com/linux/chrome/deb/ stable main" \
+            | sudo tee /etc/apt/sources.list.d/google-chrome.list
+          sudo apt-get update -qq
+          sudo apt-get install -y google-chrome-stable
+          google-chrome --version
+
+      # ── 5. Install ChromeDriver ───────────────────────────────────────────────
+      - name: Install matching ChromeDriver
+        run: |
+          CHROME_VERSION=$(google-chrome --version | sed 's/[^0-9]//g' | cut -c1-3)
+          pip install webdriver-manager
+          python -c "
+          from webdriver_manager.chrome import ChromeDriverManager
+          path = ChromeDriverManager().install()
+          print('ChromeDriver at:', path)
+          "
+
+      # ── 6. Prepare report directories ────────────────────────────────────────
+      - name: Prepare report directories
+        run: |
+          mkdir -p selenium-tests/reports/screenshots
+          mkdir -p selenium-tests/reports/logs
+        working-directory: ${{ github.workspace }}
+
+      # ── 7. Wait for deployed app to be available ──────────────────────────────
+      - name: Verify target URL is reachable
+        run: |
+          MAX=10
+          for i in $(seq 1 $MAX); do
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$BASE_URL" || echo "000")
+            echo "Attempt $i: HTTP $STATUS"
+            if [ "$STATUS" = "200" ] || [ "$STATUS" = "301" ] || [ "$STATUS" = "302" ]; then
+              echo "✅ App is reachable"
+              break
+            fi
+            if [ $i -eq $MAX ]; then
+              echo "⚠️  App may not be reachable, proceeding anyway"
+            fi
+            sleep 10
+          done
+        env:
+          BASE_URL: ${{ env.BASE_URL }}
+
+      # ── 8. Run Selenium tests (parallel) ──────────────────────────────────────
+      - name: Run Selenium E2E tests
+        id: pytest
+        continue-on-error: true
+        run: |
+          python -m pytest \
+            tests/ \
+            -n ${{ env.WORKER_COUNT }} \
+            --reruns=2 \
+            --reruns-delay=3 \
+            --timeout=60 \
+            --html=reports/execution-report.html \
+            --self-contained-html \
+            --tb=short \
+            -v \
+            --log-file=reports/logs/pytest.log \
+            --log-file-level=DEBUG \
+            -q \
+            2>&1 | tee reports/logs/test-output.log
+        working-directory: ${{ github.workspace }}/selenium-tests
+        env:
+          BASE_URL:         ${{ env.BASE_URL }}
+          HEADLESS:         ${{ env.HEADLESS }}
+          OFFICER_PHONE:    ${{ env.OFFICER_PHONE }}
+          OFFICER_PASSWORD: ${{ env.OFFICER_PASSWORD }}
+          ADMIN_PHONE:      ${{ env.ADMIN_PHONE }}
+          ADMIN_PASSWORD:   ${{ env.ADMIN_PASSWORD }}
+          FARMER_PHONE:     ${{ env.FARMER_PHONE }}
+          FARMER_PASSWORD:  ${{ env.FARMER_PASSWORD }}
+
+      # ── 9. Generate all reports ───────────────────────────────────────────────
+      - name: Generate reports (Excel, Dashboard, Summary)
+        if: always()
+        run: |
+          python generate_reports.py || true
+        working-directory: ${{ github.workspace }}/selenium-tests
+        env:
+          GITHUB_STEP_SUMMARY: ${{ env.GITHUB_STEP_SUMMARY }}
+
+      # ── 10. Parse results and write GitHub Actions Summary ────────────────────
+      - name: Write GitHub Actions job summary
+        if: always()
+        run: |
+          RESULTS_FILE="selenium-tests/reports/execution-results.json"
+          if [ -f "$RESULTS_FILE" ]; then
+            TOTAL=$(python -c "import json; d=json.load(open('$RESULTS_FILE')); print(d.get('total',0))")
+            PASSED=$(python -c "import json; d=json.load(open('$RESULTS_FILE')); print(d.get('passed',0))")
+            FAILED=$(python -c "import json; d=json.load(open('$RESULTS_FILE')); print(d.get('failed',0))")
+            SKIPPED=$(python -c "import json; d=json.load(open('$RESULTS_FILE')); print(d.get('skipped',0))")
+            PASS_RATE=$(python -c "import json; d=json.load(open('$RESULTS_FILE')); t=d.get('total',1); print(round(d.get('passed',0)/t*100,2) if t>0 else 0)")
+          else
+            TOTAL=0; PASSED=0; FAILED=0; SKIPPED=0; PASS_RATE=0
+          fi
+
+          cat >> $GITHUB_STEP_SUMMARY << EOF
+          ## 🌾 KrishiIQ Selenium E2E Results
+
+          | Metric | Value |
+          |---|---|
+          | ✅ Passed | **${PASSED}** |
+          | ❌ Failed | **${FAILED}** |
+          | ⏭️ Skipped | **${SKIPPED}** |
+          | 📊 Total | **${TOTAL}** |
+          | 🎯 Pass Rate | **${PASS_RATE}%** |
+
+          > Base URL: \`${{ env.BASE_URL }}\`
+          EOF
+
+          if python -c "r=${PASS_RATE}; exit(0 if r >= 95 else 1)"; then
+            echo "✅ Pass rate ${PASS_RATE}% is above 95% threshold" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ Pass rate ${PASS_RATE}% is BELOW 95% threshold!" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      # ── 11. Upload all artifacts (30-day retention) ──────────────────────────
+      - name: Upload test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-reports-${{ github.run_number }}
+          path: |
+            selenium-tests/reports/execution-report.html
+            selenium-tests/reports/dashboard.html
+            selenium-tests/reports/execution-results.json
+            selenium-tests/reports/summary.md
+            selenium-tests/reports/Automation_Test_Report.xlsx
+          retention-days: 30
+
+      - name: Upload screenshots (failures)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: screenshots-${{ github.run_number }}
+          path: selenium-tests/reports/screenshots/
+          retention-days: 30
+          if-no-files-found: ignore
+
+      - name: Upload logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: logs-${{ github.run_number }}
+          path: selenium-tests/reports/logs/
+          retention-days: 30
+          if-no-files-found: ignore
+
+      # ── 12. Fail the workflow if pass rate < 95% ──────────────────────────────
+      - name: Enforce 95% pass rate gate
+        if: always()
+        run: |
+          RESULTS_FILE="selenium-tests/reports/execution-results.json"
+          if [ -f "$RESULTS_FILE" ]; then
+            PASS_RATE=$(python -c "
+          import json, sys
+          d = json.load(open('$RESULTS_FILE'))
+          t = d.get('total', 1)
+          rate = round(d.get('passed', 0) / t * 100, 2) if t > 0 else 0
+          print(rate)
+          sys.exit(0 if rate >= 95 else 1)
+            ")
+            echo "Pass rate: $PASS_RATE%"
+          else
+            echo "No results file — treating as failure"
+            exit 1
+          fi
+        working-directory: ${{ github.workspace }}

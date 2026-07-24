@@ -34,3 +34,17 @@ mobile/build/
 # OS
 .DS_Store
 Thumbs.db
+
+# Selenium test outputs (generated at runtime — keep dir structure via .gitkeep)
+selenium-tests/reports/*.html
+selenium-tests/reports/*.xlsx
+selenium-tests/reports/*.json
+selenium-tests/reports/*.md
+selenium-tests/reports/screenshots/*.png
+selenium-tests/reports/logs/*.log
+selenium-tests/reports/logs/*.txt
+
+# pytest cache
+selenium-tests/.pytest_cache/
+selenium-tests/__pycache__/
+selenium-tests/**/__pycache__/
