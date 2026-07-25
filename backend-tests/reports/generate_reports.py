@@ -92,62 +92,100 @@ generated_at = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
 # ---------------------------------------------------------------------------
 # test-cases.xlsx
 # ---------------------------------------------------------------------------
+def _slug(text, maxlen=60):
+    import re
+    s = re.sub(r"[^a-zA-Z0-9]+", "_", (text or "").strip().lower()).strip("_")
+    return s[:maxlen]
+
+
+def _synthetic_test_id(tc_id, title):
+    return f"test_{tc_id.replace('TC-', '')}_{_slug(title)}"
+
+
 def build_test_cases_xlsx():
+    """Writes test-cases.xlsx in the same 6-sheet layout as the
+    Selenium suite's Automation_Test_Report.xlsx: Executed Tests,
+    Passed, Failed, Skipped, Execution Metrics, Defect Summary.
+    """
+    status_map = {"Pass": "PASSED", "Fail": "FAILED", "Skip": "SKIPPED", "Error": "FAILED"}
+    sev_fill = {
+        "Critical": PatternFill(start_color="C00000", end_color="C00000", fill_type="solid"),
+        "High": PatternFill(start_color="E36C09", end_color="E36C09", fill_type="solid"),
+        "Medium": PatternFill(start_color="FFC000", end_color="FFC000", fill_type="solid"),
+        "Low": PatternFill(start_color="92D050", end_color="92D050", fill_type="solid"),
+        "Informational": PatternFill(start_color="BFBFBF", end_color="BFBFBF", fill_type="solid"),
+    }
+
+    records = []
+    for row in catalog:
+        records.append({
+            "test_id": _synthetic_test_id(row["id"], row["title"]),
+            "module": row["category"],
+            "severity": row["severity"],
+            "status": status_map.get(row["status"], "SKIPPED"),
+        })
+
+    by_category = Counter(r["module"] for r in records)
+    by_status_raw = Counter(row["status"] for row in catalog)  # Pass/Fail/Skip/Error, for callers
+
     wb = Workbook()
+
+    # ---- Executed Tests ----
     ws = wb.active
-    ws.title = "Test Cases"
-    headers = [
-        "Test Case ID", "Category", "Title", "Objective", "Preconditions",
-        "Test Steps", "Test Data", "Expected Result", "Severity", "Status",
-    ]
-    ws.append(headers)
-    _style_header(ws, len(headers))
-
-    by_category = Counter()
-    by_status = Counter()
-
-    for row in sorted(catalog, key=lambda r: r["id"]):
-        ws.append([
-            row["id"], row["category"], row["title"], row["objective"],
-            row["preconditions"], row["steps"], row["test_data"],
-            row["expected"], row["severity"], row["status"],
-        ])
-        by_category[row["category"]] += 1
-        by_status[row["status"]] += 1
-        status_cell = ws.cell(row=ws.max_row, column=10)
-        if row["status"] == "Pass":
-            status_cell.fill = PatternFill(start_color="C6EFCE", end_color="C6EFCE", fill_type="solid")
-        elif row["status"] == "Fail":
-            status_cell.fill = PatternFill(start_color="FFC7CE", end_color="FFC7CE", fill_type="solid")
-        elif row["status"] == "Skip":
-            status_cell.fill = PatternFill(start_color="FFEB9C", end_color="FFEB9C", fill_type="solid")
-
-    for cell in ws["A"] + ws["B"] + ws["I"] + ws["J"]:
-        cell.alignment = Alignment(vertical="top")
-    for col in ("D", "E", "F", "G", "H"):
-        for cell in ws[col]:
-            cell.alignment = Alignment(vertical="top", wrap_text=True)
+    ws.title = "Executed Tests"
+    ws.append(["#", "Test ID", "Module", "Markers", "Status", "Duration (s)"])
+    for i, rec in enumerate(records, start=1):
+        ws.append([i, rec["test_id"], rec["module"], rec["severity"], rec["status"], None])
+    _style_header(ws, 6)
     _autosize(ws)
 
-    # Summary sheet
-    ws2 = wb.create_sheet("Summary")
-    ws2.append(["Metric", "Value"])
-    _style_header(ws2, 2)
-    ws2.append(["Total test cases", len(catalog)])
-    ws2.append(["Passed", by_status.get("Pass", 0)])
-    ws2.append(["Failed", by_status.get("Fail", 0)])
-    ws2.append(["Skipped", by_status.get("Skip", 0)])
-    ws2.append(["Errored", by_status.get("Error", 0)])
-    ws2.append(["Target", run_summary.get("target", "unknown")])
-    ws2.append(["Generated", generated_at])
-    ws2.append([])
-    ws2.append(["Category", "Test Case Count"])
-    for cat, count in sorted(by_category.items(), key=lambda kv: -kv[1]):
-        ws2.append([cat, count])
-    _autosize(ws2)
+    # ---- Passed / Failed / Skipped ----
+    for sheet_name, wanted_status in (("Passed", "PASSED"), ("Failed", "FAILED"), ("Skipped", "SKIPPED")):
+        s = wb.create_sheet(sheet_name)
+        s.append(["#", "Test ID", "Module", "Duration (s)"])
+        i = 0
+        for rec in records:
+            if rec["status"] == wanted_status:
+                i += 1
+                s.append([i, rec["test_id"], rec["module"], None])
+        _style_header(s, 4)
+        _autosize(s)
+
+    # ---- Execution Metrics ----
+    total = len(records)
+    passed = sum(1 for r in records if r["status"] == "PASSED")
+    failed = sum(1 for r in records if r["status"] == "FAILED")
+    skipped = sum(1 for r in records if r["status"] == "SKIPPED")
+    pass_rate = round((passed / total) * 100, 1) if total else 0
+
+    m = wb.create_sheet("Execution Metrics")
+    m.append(["Metric", "Value"])
+    m.append(["Run At", generated_at])
+    m.append(["Base URL", run_summary.get("target", "")])
+    m.append(["Total Tests", total])
+    m.append(["Passed", passed])
+    m.append(["Failed", failed])
+    m.append(["Skipped", skipped])
+    m.append(["Pass Rate (%)", pass_rate])
+    _style_header(m, 2)
+    _autosize(m)
+
+    # ---- Defect Summary (failed tests only) ----
+    d = wb.create_sheet("Defect Summary")
+    d.append(["#", "Defect / Test ID", "Module", "Severity"])
+    i = 0
+    for rec in records:
+        if rec["status"] == "FAILED":
+            i += 1
+            d.append([i, rec["test_id"], rec["module"], (rec["severity"] or "").upper()])
+            fill = sev_fill.get(rec["severity"])
+            if fill:
+                d.cell(row=d.max_row, column=4).fill = fill
+    _style_header(d, 4)
+    _autosize(d)
 
     wb.save(OUT_DIR / "test-cases.xlsx")
-    return by_category, by_status
+    return by_category, by_status_raw
 
 
 # ---------------------------------------------------------------------------
