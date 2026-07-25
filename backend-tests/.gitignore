@@ -1,0 +1,6 @@
+tests/artifacts/
+reports/output/
+load/k6-summary.json
+__pycache__/
+*.pyc
+.pytest_cache/

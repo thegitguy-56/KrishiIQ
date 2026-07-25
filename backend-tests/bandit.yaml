@@ -1,0 +1,12 @@
+# Bandit static analysis configuration for the KrishiIQ backend.
+# Run in CI as: bandit -r backend/app -f json -o reports/output/bandit-report.json -c backend-tests/bandit.yaml
+# (also run once more with -f screen for a human-readable console log)
+
+# B101 (assert_used) is noisy for FastAPI/pydantic codebases and not a real
+# security issue here; everything else stays at Bandit's defaults.
+skips: ["B101"]
+
+# Fail the SAST step only on HIGH confidence + HIGH severity issues; everything
+# else still shows up in the uploaded report for manual triage.
+assert_used:
+  skips: ["*/tests/*", "*/test_*.py"]

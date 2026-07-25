@@ -1,0 +1,210 @@
+name: Backend Testing (Security + Load + Functional API)
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+    branches: ["**"]
+  workflow_dispatch:
+    inputs:
+      target:
+        description: "Target to test against"
+        required: false
+        default: "ci-ephemeral"
+        type: choice
+        options:
+          - ci-ephemeral
+          - deployed
+      confirm_deployed:
+        description: "Type exactly 'yes-run-against-deployed' to allow testing the LIVE Render deployment (writes real data — see README.md). Ignored for ci-ephemeral."
+        required: false
+        default: ""
+      run_stress_test:
+        description: "Also run the k6 stress stages (200/500/1000 VUs)? Only ever runs against ci-ephemeral, regardless of 'target'."
+        required: false
+        default: "false"
+
+permissions:
+  contents: read
+  actions: write
+
+env:
+  PYTHON_VERSION: "3.11"
+  K6_VERSION: "v0.52.0"
+  TARGET: ${{ github.event.inputs.target || 'ci-ephemeral' }}
+  RUN_STRESS_TEST: ${{ github.event.inputs.run_stress_test || 'false' }}
+
+jobs:
+  backend-tests:
+    name: Backend Security + Functional + Load Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      # ── 1. Checkout ─────────────────────────────────────────────────────
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # ── 2. Safety gate for the deployed target ─────────────────────────
+      - name: Guard against accidental production load/security testing
+        if: ${{ github.event.inputs.target == 'deployed' && github.event.inputs.confirm_deployed != 'yes-run-against-deployed' }}
+        run: |
+          echo "::error::TARGET=deployed was selected but confirm_deployed did not equal 'yes-run-against-deployed'. Refusing to run security/load tests against the live Render deployment. See README.md."
+          exit 1
+
+      # ── 3. Python setup ──────────────────────────────────────────────────
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: "pip"
+          cache-dependency-path: |
+            backend/requirements.txt
+            backend-tests/requirements-test.txt
+
+      - name: Install backend runtime dependencies
+        if: ${{ env.TARGET == 'ci-ephemeral' }}
+        working-directory: backend
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Install backend-tests dependencies
+        working-directory: backend-tests
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-test.txt
+
+      # ── 4. SAST ──────────────────────────────────────────────────────────
+      - name: Run Bandit (SAST)
+        working-directory: backend-tests
+        continue-on-error: true
+        run: |
+          mkdir -p reports/output
+          bandit -r ../backend/app -c bandit.yaml -f json -o reports/output/bandit-report.json || true
+          bandit -r ../backend/app -c bandit.yaml -f screen || true
+
+      - name: Run pip-audit (dependency vulnerability scan)
+        working-directory: backend-tests
+        continue-on-error: true
+        run: |
+          pip-audit -r ../backend/requirements.txt -f json -o reports/output/pip-audit-report.json || true
+          pip-audit -r ../backend/requirements.txt || true
+
+      # ── 5. Start the ephemeral backend instance ─────────────────────────
+      - name: Start FastAPI backend (ephemeral SQLite, auto-seeded)
+        if: ${{ env.TARGET == 'ci-ephemeral' }}
+        working-directory: backend
+        env:
+          DATABASE_URL: "sqlite:///./ci_test.db"
+          SECRET_KEY: ${{ secrets.CI_TEST_JWT_SECRET || 'ci-ephemeral-secret-do-not-reuse' }}
+          REDIS_URL: ""
+          ENVIRONMENT: "development"
+          CORS_ORIGINS: "http://localhost:5173,http://localhost:3000,http://127.0.0.1:5173"
+        run: |
+          nohup uvicorn app.main:app --host 127.0.0.1 --port 8000 > ../backend-server.log 2>&1 &
+          echo $! > ../backend-server.pid
+
+      - name: Wait for backend health check
+        if: ${{ env.TARGET == 'ci-ephemeral' }}
+        run: |
+          for i in $(seq 1 60); do
+            if curl -sf http://127.0.0.1:8000/health > /dev/null; then
+              echo "Backend is healthy."
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "::error::Backend did not become healthy within 60s."
+          cat backend-server.log || true
+          exit 1
+
+      - name: Resolve API_BASE_URL
+        id: base_url
+        run: |
+          if [ "${{ env.TARGET }}" = "deployed" ]; then
+            echo "value=https://krishiiq-6su1.onrender.com" >> "$GITHUB_OUTPUT"
+          else
+            echo "value=http://127.0.0.1:8000" >> "$GITHUB_OUTPUT"
+          fi
+
+      # ── 6. Functional + security API test suite ─────────────────────────
+      - name: Run pytest suite (auth, authz, injection, validation, business logic, config, functional, DAST, performance)
+        working-directory: backend-tests
+        continue-on-error: true
+        env:
+          API_BASE_URL: ${{ steps.base_url.outputs.value }}
+        run: |
+          mkdir -p reports/output
+          python -m pytest tests/ -q \
+            --junitxml=reports/output/junit.xml \
+            --json-report --json-report-file=reports/output/pytest-report.json
+
+      # ── 7. Load test (k6) ────────────────────────────────────────────────
+      - name: Install k6
+        run: |
+          curl -sL "https://github.com/grafana/k6/releases/download/${K6_VERSION}/k6-${K6_VERSION}-linux-amd64.tar.gz" \
+            | tar xz --strip-components 1 --wildcards '*/k6'
+          sudo mv k6 /usr/local/bin/k6
+          k6 version
+
+      - name: Run k6 baseline load test (100 VUs / 1 min)
+        working-directory: backend-tests
+        continue-on-error: true
+        env:
+          BASE_URL: ${{ steps.base_url.outputs.value }}
+        run: |
+          k6 run --summary-export=load/k6-summary.json load/k6-load-test.js
+
+      - name: Run k6 stress stages (200/500/1000 VUs) — opt-in, ci-ephemeral only
+        if: ${{ env.RUN_STRESS_TEST == 'true' && env.TARGET == 'ci-ephemeral' }}
+        working-directory: backend-tests
+        continue-on-error: true
+        env:
+          BASE_URL: ${{ steps.base_url.outputs.value }}
+        run: |
+          k6 run -e RUN_STRESS_TEST=true --summary-export=load/k6-summary.json load/k6-load-test.js
+
+      # ── 8. Generate reports ──────────────────────────────────────────────
+      - name: Generate test-cases.xlsx, findings.xlsx, and markdown reports
+        id: reports
+        working-directory: backend-tests
+        continue-on-error: true
+        run: |
+          python reports/generate_reports.py
+          echo "exit_code=$?" >> "$GITHUB_OUTPUT"
+
+      - name: Publish GitHub Actions summary
+        if: always()
+        run: |
+          if [ -f backend-tests/reports/output/github-step-summary.md ]; then
+            cat backend-tests/reports/output/github-step-summary.md >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "## Backend test report generation failed — see job logs and uploaded artifacts." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      # ── 9. Stop the ephemeral server ─────────────────────────────────────
+      - name: Stop backend server
+        if: always()
+        run: |
+          if [ -f backend-server.pid ]; then kill "$(cat backend-server.pid)" || true; fi
+
+      # ── 10. Upload artifacts (30-day retention) ──────────────────────────
+      - name: Upload test & security reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-test-reports
+          retention-days: 30
+          if-no-files-found: warn
+          path: |
+            backend-tests/reports/output/**
+            backend-tests/load/k6-summary.json
+            backend-server.log
+
+      # ── 11. Fail the pipeline only on Critical findings ──────────────────
+      - name: Fail pipeline on Critical findings
+        if: ${{ steps.reports.outputs.exit_code != '0' }}
+        run: |
+          echo "::error::Critical-severity findings were confirmed — see security-review.md / findings.xlsx in the uploaded artifacts."
+          exit 1
