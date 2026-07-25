@@ -133,22 +133,22 @@ def build_test_cases_xlsx():
     # ---- Executed Tests ----
     ws = wb.active
     ws.title = "Executed Tests"
-    ws.append(["#", "Test ID", "Module", "Markers", "Status", "Duration (s)"])
+    ws.append(["#", "Test ID", "Module", "Markers", "Status"])
     for i, rec in enumerate(records, start=1):
-        ws.append([i, rec["test_id"], rec["module"], rec["severity"], rec["status"], None])
-    _style_header(ws, 6)
+        ws.append([i, rec["test_id"], rec["module"], rec["severity"], rec["status"]])
+    _style_header(ws, 5)
     _autosize(ws)
 
     # ---- Passed / Failed / Skipped ----
     for sheet_name, wanted_status in (("Passed", "PASSED"), ("Failed", "FAILED"), ("Skipped", "SKIPPED")):
         s = wb.create_sheet(sheet_name)
-        s.append(["#", "Test ID", "Module", "Duration (s)"])
+        s.append(["#", "Test ID", "Module"])
         i = 0
         for rec in records:
             if rec["status"] == wanted_status:
                 i += 1
-                s.append([i, rec["test_id"], rec["module"], None])
-        _style_header(s, 4)
+                s.append([i, rec["test_id"], rec["module"]])
+        _style_header(s, 3)
         _autosize(s)
 
     # ---- Execution Metrics ----
