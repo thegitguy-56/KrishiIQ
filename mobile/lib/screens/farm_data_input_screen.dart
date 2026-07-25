@@ -107,6 +107,7 @@ class _FarmDataInputScreenState extends ConsumerState<FarmDataInputScreen> {
             children: [
               // Farm Selector Dropdown
               DropdownButtonFormField<String>(
+                key: const ValueKey('farm_data_farm_dropdown'),
                 value: _farmId,
                 decoration: const InputDecoration(
                   labelText: 'Select Farm Profile',
@@ -145,12 +146,14 @@ class _FarmDataInputScreenState extends ConsumerState<FarmDataInputScreen> {
               // Form Input Switch Fields
               if (_category == 'crop_history') ...[
                 TextField(
+                  key: const ValueKey('farm_data_crop_field'),
                   controller: _crop,
                   decoration: const InputDecoration(
                       labelText: 'Crop Name', border: OutlineInputBorder()),
                 ),
                 const SizedBox(height: 16),
                 TextField(
+                  key: const ValueKey('farm_data_yield_field'),
                   controller: _yield,
                   keyboardType:
                       const TextInputType.numberWithOptions(decimal: true),
@@ -159,6 +162,7 @@ class _FarmDataInputScreenState extends ConsumerState<FarmDataInputScreen> {
                 ),
                 const SizedBox(height: 16),
                 TextField(
+                  key: const ValueKey('farm_data_fertilizer_field'),
                   controller: _fertilizer,
                   decoration: const InputDecoration(
                       labelText: 'Fertilizers Used',
@@ -166,6 +170,7 @@ class _FarmDataInputScreenState extends ConsumerState<FarmDataInputScreen> {
                 ),
               ] else ...[
                 TextField(
+                  key: const ValueKey('farm_data_shc_field'),
                   controller: _shc,
                   decoration: const InputDecoration(
                       labelText: 'Soil Health Card ID',
@@ -176,6 +181,7 @@ class _FarmDataInputScreenState extends ConsumerState<FarmDataInputScreen> {
 
               // Submission Button
               ElevatedButton(
+                key: const ValueKey('farm_data_save_button'),
                 onPressed: _loading ? null : _save,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF16A34A),

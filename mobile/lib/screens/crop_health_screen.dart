@@ -140,6 +140,7 @@ class _CropHealthScreenState extends ConsumerState<CropHealthScreen> {
     }
 
     return DropdownButtonFormField<String>(
+      key: const ValueKey('crop_health_farm_dropdown'),
       value: validSelected ? _selectedFarmId : null,
       hint: const Text('Select Farm'),
       isExpanded: true,
@@ -206,6 +207,7 @@ class _CropHealthScreenState extends ConsumerState<CropHealthScreen> {
             ),
             const SizedBox(height: 16),
             GestureDetector(
+              key: const ValueKey('crop_health_image_picker_area'),
               onTap: _showImageSourceDialog,
               child: Container(
                 width: double.infinity,
@@ -242,6 +244,7 @@ class _CropHealthScreenState extends ConsumerState<CropHealthScreen> {
               width: double.infinity,
               height: 52,
               child: ElevatedButton.icon(
+                key: const ValueKey('crop_health_detect_button'),
                 onPressed:
                     (_image != null && _selectedFarmId != null && !_loading)
                         ? _detect

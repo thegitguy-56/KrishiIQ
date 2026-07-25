@@ -53,6 +53,7 @@ class _SensorsTabScreenState extends ConsumerState<SensorsTabScreen> {
               const Text('Pair New Sensor', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
               const SizedBox(height: 8),
               DropdownButtonFormField<String>(
+                key: const ValueKey('sensors_farm_dropdown'),
                 value: _farmId ?? data.first['id'].toString(),
                 items: data.map((f) => DropdownMenuItem(value: f['id'].toString(), child: Text(f['name']))).toList(),
                 onChanged: (v) => setState(() => _farmId = v),
@@ -60,11 +61,13 @@ class _SensorsTabScreenState extends ConsumerState<SensorsTabScreen> {
               ),
               const SizedBox(height: 8),
               TextField(
+                key: const ValueKey('sensors_device_id_field'),
                 controller: _deviceId,
                 decoration: const InputDecoration(labelText: 'Sensor Device ID', border: OutlineInputBorder()),
               ),
               const SizedBox(height: 12),
               ElevatedButton.icon(
+                key: const ValueKey('sensors_pair_button'),
                 onPressed: () async {
                   try {
                     await ApiService().registerSensor(_farmId ?? data.first['id'].toString(), _deviceId.text.trim().isEmpty ? 'SENSOR-001' : _deviceId.text.trim());

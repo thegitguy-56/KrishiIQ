@@ -130,6 +130,7 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
                 children: [
                   Expanded(
                     child: TextField(
+                      key: const ValueKey('ai_chat_input_field'),
                       controller: _controller,
                       decoration: InputDecoration(
                         hintText: hint,
@@ -141,6 +142,7 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
                   ),
                   const SizedBox(width: 8),
                   IconButton.filled(
+                    key: const ValueKey('ai_chat_send_button'),
                     onPressed: _send,
                     icon: const Icon(Icons.send),
                     style: IconButton.styleFrom(backgroundColor: const Color(0xFF16A34A), foregroundColor: Colors.white),

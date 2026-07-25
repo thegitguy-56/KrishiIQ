@@ -151,6 +151,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               ),
               const SizedBox(height: 32),
               TextField(
+                key: const ValueKey('login_phone_field'),
                 controller: _phoneCtrl,
                 keyboardType: TextInputType.phone,
                 decoration: InputDecoration(
@@ -163,12 +164,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               ),
               const SizedBox(height: 16),
               TextField(
+                key: const ValueKey('login_password_field'),
                 controller: _passCtrl,
                 obscureText: _obscure,
                 decoration: InputDecoration(
                   labelText: 'Password',
                   prefixIcon: const Icon(Icons.lock_outline),
                   suffixIcon: IconButton(
+                    key: const ValueKey('login_password_visibility_toggle'),
                     icon: Icon(
                       _obscure ? Icons.visibility_off : Icons.visibility,
                     ),
@@ -186,6 +189,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 width: double.infinity,
                 height: 52,
                 child: ElevatedButton(
+                  key: const ValueKey('login_submit_button'),
                   onPressed: _loading ? null : _login,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF16A34A),
@@ -215,6 +219,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               const SizedBox(height: 16),
               Center(
                 child: TextButton(
+                  key: const ValueKey('login_goto_register_button'),
                   onPressed: () => context.push('/register'),
                   child: const Text('New farmer? Register here'),
                 ),

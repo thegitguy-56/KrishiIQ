@@ -51,10 +51,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         ),
         actions: [
           IconButton(
+            key: const ValueKey('home_notifications_button'),
             icon: const Icon(Icons.notifications_outlined),
             onPressed: () {},
           ),
           IconButton(
+            key: const ValueKey('home_logout_button'),
             icon: const Icon(Icons.logout),
             onPressed: () {
               ref.read(authProvider.notifier).logout();

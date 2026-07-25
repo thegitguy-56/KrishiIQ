@@ -79,26 +79,29 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
       body: ListView(
         padding: const EdgeInsets.all(20),
         children: [
-          TextField(controller: _name, decoration: _dec('Full Name', Icons.person)),
+          TextField(key: const ValueKey('register_name_field'), controller: _name, decoration: _dec('Full Name', Icons.person)),
           const SizedBox(height: 12),
           TextField(
+            key: const ValueKey('register_email_field'),
             controller: _email,
             keyboardType: TextInputType.emailAddress,
             decoration: _dec('Email', Icons.email_outlined),
           ),
           const SizedBox(height: 12),
           TextField(
+            key: const ValueKey('register_phone_field'),
             controller: _phone,
             keyboardType: TextInputType.phone,
             decoration: _dec('Mobile Number', Icons.phone),
           ),
           const SizedBox(height: 12),
-          TextField(controller: _pass, obscureText: true, decoration: _dec('Password', Icons.lock)),
+          TextField(key: const ValueKey('register_password_field'), controller: _pass, obscureText: true, decoration: _dec('Password', Icons.lock)),
           const SizedBox(height: 12),
-          TextField(controller: _district, decoration: _dec('District', Icons.map)),
+          TextField(key: const ValueKey('register_district_field'), controller: _district, decoration: _dec('District', Icons.map)),
           const SizedBox(height: 16),
           const Text('Preferred Language', style: TextStyle(fontWeight: FontWeight.w600)),
           SegmentedButton<String>(
+            key: const ValueKey('register_language_selector'),
             segments: const [
               ButtonSegment(value: 'en', label: Text('English')),
               ButtonSegment(value: 'hi', label: Text('हिंदी')),
@@ -111,6 +114,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
           SizedBox(
             height: 52,
             child: ElevatedButton(
+              key: const ValueKey('register_submit_button'),
               onPressed: _loading ? null : _register,
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFF16A34A),
