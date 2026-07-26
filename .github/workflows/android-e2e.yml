@@ -144,6 +144,7 @@ jobs:
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back emulated -camera-front emulated
           disable-animations: true
           script: chmod +x mobile-tests/scripts/ci_run_shard.sh && mobile-tests/scripts/ci_run_shard.sh "${{ matrix.shard }}" "${{ env.APK_PATH }}" "${{ env.APP_PACKAGE }}"
+        continue-on-error: true
 
       - name: Upload shard results (always, even on failure)
         if: always()

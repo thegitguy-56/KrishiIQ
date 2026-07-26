@@ -34,21 +34,51 @@ AppiumConnection.set_timeout(settings.APPIUM_COMMAND_TIMEOUT)
 
 # --------------------------------------------------------------------------- #
 # Appium session — one per shard's pytest process, reused across every test
-# in that shard for speed. No per-test health check / recreate: a command
-# that times out fails that one test cleanly (and gets rerun by
-# pytest-rerunfailures) rather than tearing down and rebuilding the whole
-# session.
+# in that shard for speed. No proactive per-test health check (that version
+# fired 21-79 times per 101-test shard and was the dominant cost). Instead,
+# recovery is purely reactive: if relaunching the app before a test fails
+# (observed cause: the Flutter Observatory connection drops and
+# FlutterDriver can never reconnect it again for the rest of that session —
+# "No matched log found" in appium-server.log — which previously ERRORed
+# every single remaining test in the shard with no recovery), we quit the
+# dead session and open a fresh one, once, right then.
 # --------------------------------------------------------------------------- #
+class ResilientDriver:
+    def __init__(self):
+        self._raw = None
+        self._create()
+
+    def _create(self):
+        caps = build_capabilities()
+        options = UiAutomator2Options().load_capabilities(caps)
+        self._raw = webdriver.Remote(settings.APPIUM_SERVER_URL, options=options)
+        self._raw.implicitly_wait(settings.IMPLICIT_WAIT)
+        log.info("Appium session started: %s", self._raw.session_id)
+
+    def recreate(self):
+        log.warning(
+            "Recreating Appium session %s (activate_app failed, looks dead)",
+            getattr(self._raw, "session_id", "?"),
+        )
+        try:
+            self._raw.quit()
+        except Exception as exc:  # noqa: BLE001
+            log.warning("Quit on dead session raised (ignoring): %s", exc)
+        self._create()
+
+    def __getattr__(self, name):
+        # Forwards everything else — terminate_app, activate_app,
+        # find_element, execute_script, get_screenshot_as_file, get_log,
+        # quit, etc. — to whichever real session is currently live.
+        return getattr(self._raw, name)
+
+
 @pytest.fixture(scope="session")
 def driver():
-    caps = build_capabilities()
-    options = UiAutomator2Options().load_capabilities(caps)
-    session = webdriver.Remote(settings.APPIUM_SERVER_URL, options=options)
-    session.implicitly_wait(settings.IMPLICIT_WAIT)
-    log.info("Appium session started: %s", session.session_id)
-    yield session
+    d = ResilientDriver()
+    yield d
     try:
-        session.quit()
+        d.quit()
     except Exception as exc:  # noqa: BLE001
         log.warning("Driver quit raised: %s", exc)
 
@@ -62,12 +92,20 @@ def finder():
 def _restart_app_between_tests(driver, request):
     """Relaunch the app fresh before every test so state never leaks
     between the 400+ parametrized cases (fast: activity restart, not a
-    full emulator/app reinstall or session recreate)."""
+    full emulator/app reinstall). If the relaunch itself fails, the
+    session has gone bad (see class docstring above) — recreate it once
+    and retry the relaunch on the fresh session rather than ERRORing
+    every remaining test in the shard."""
     try:
         driver.terminate_app(settings.APP_PACKAGE)
     except Exception:  # noqa: BLE001
         pass
-    driver.activate_app(settings.APP_PACKAGE)
+    try:
+        driver.activate_app(settings.APP_PACKAGE)
+    except Exception as exc:  # noqa: BLE001
+        log.warning("activate_app failed (%s) — recreating session", exc)
+        driver.recreate()
+        driver.activate_app(settings.APP_PACKAGE)
     yield
 
 
