@@ -1,10 +1,24 @@
 """
-GNN-based field relationship modeling.
-Models pest/disease spread risk between neighboring farms based on geospatial proximity,
-crop similarity, and wind direction.
+Geospatial pest/disease spread risk model.
+
+Estimates spread risk between neighboring farms using proximity (haversine
+distance), matching crop type, and wind direction as a rule-based heuristic.
+
+NOTE ON NAMING: this module was previously called gnn_model.py and its
+docstring described it as "GNN-based" (Graph Neural Network). That was
+inaccurate — there is no trained neural network here, no torch-geometric
+usage, and no learned parameters. It's a deterministic formula with
+hand-chosen weights. Renamed and re-documented for accuracy; the underlying
+logic is unchanged (aside from the crop-matching fix noted below).
+
+Building a genuine GNN for this would require historical, labeled
+farm-to-farm disease-spread data to train on, which isn't available here —
+a model "trained" without that would just be fitting noise while looking
+more sophisticated than it is. This heuristic is honest about being a
+heuristic, which is preferable for a system real farmers might rely on.
 """
 import math
-from typing import List, Dict, Optional, Tuple
+from typing import List, Dict, Optional
 
 
 def haversine_km(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
@@ -21,7 +35,7 @@ def compute_spread_risk(
     disease_name: str,
     wind_direction_deg: Optional[float] = None,
 ) -> float:
-    """Returns a 0–1 risk score for disease spread from source to target farm."""
+    """Returns a 0-1 risk score for disease spread from source to target farm."""
     dist_km = haversine_km(
         source_farm["latitude"], source_farm["longitude"],
         target_farm["latitude"], target_farm["longitude"],
@@ -32,7 +46,15 @@ def compute_spread_risk(
 
     proximity_score = max(0, 1 - (dist_km / 10))
 
-    crop_match = 1.5 if source_farm.get("crop") == target_farm.get("crop") else 1.0
+    # Only apply the same-crop multiplier when both farms actually have a
+    # known, non-null crop that matches. Previously this compared None == None
+    # (always True when crop data wasn't populated by the caller), so the
+    # multiplier silently fired for every farm pair regardless of what was
+    # actually planted. Fixed here; the caller must now pass real crop values
+    # for this to have any effect (see dashboard.py's pest-spread-risk route).
+    source_crop = source_farm.get("crop")
+    target_crop = target_farm.get("crop")
+    crop_match = 1.5 if (source_crop and target_crop and source_crop == target_crop) else 1.0
 
     wind_score = 1.0
     if wind_direction_deg is not None and dist_km > 0:

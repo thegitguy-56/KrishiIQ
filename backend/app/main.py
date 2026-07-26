@@ -18,6 +18,7 @@ from app.api import (
     ai,
     farmers,
     crops,
+    yield_prediction,
     history,
 )
 
@@ -295,6 +296,7 @@ app.include_router(ai.router, prefix="/api/v1")
 app.include_router(farmers.router, prefix="/api/v1")
 app.include_router(crops.router, prefix="/api/v1")
 app.include_router(history.router, prefix="/api/v1")
+app.include_router(yield_prediction.router, prefix="/api/v1")
 
 uploads_dir = Path(__file__).resolve().parents[1] / "uploads"
 uploads_dir.mkdir(parents=True, exist_ok=True)
@@ -315,4 +317,4 @@ def health():
         "status": "ok",
         "service": "KrishiIQ API",
         "version": "1.0.0",
-    }
+    }

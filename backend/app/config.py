@@ -25,7 +25,6 @@ class Settings(BaseSettings):
 
     DISEASE_MODEL_PATH: str = "./ml/weights/efficientnet_disease.pt"
     YIELD_MODEL_PATH: str = "./ml/weights/yield_predictor.pt"
-    GNN_MODEL_PATH: str = "./ml/weights/gnn_fields.pt"
 
     ENVIRONMENT: str = "development"
     DEV_OTP_CODE: str = "123456"

@@ -10,7 +10,7 @@ from app.models.farmer import Farmer
 from app.models.disease_detection import DiseaseDetection
 from app.models.sensor_reading import SensorReading
 from app.models.crop import CropRecord, CropStatus
-from app.ml.gnn_model import build_risk_graph
+from app.ml.field_risk_model import build_risk_graph
 
 router = APIRouter(prefix="/dashboard", tags=["dashboard"])
 
@@ -77,7 +77,7 @@ def get_pest_spread_risk(
     user: User = Depends(require_officer),
 ):
     farms = db.query(Farm).filter(Farm.district == district).all()
-
+ 
     infected_detections = (
         db.query(DiseaseDetection.farm_id)
         .filter(DiseaseDetection.severity.in_(["high", "critical"]))
@@ -85,15 +85,35 @@ def get_pest_spread_risk(
         .all()
     )
     infected_ids = [str(d.farm_id) for d in infected_detections]
-
+ 
+    farm_ids = [f.id for f in farms]
+    current_crops = (
+        db.query(CropRecord.farm_id, CropRecord.crop_name)
+        .filter(
+            CropRecord.farm_id.in_(farm_ids),
+            CropRecord.status != CropStatus.COMPLETED,
+        )
+        .order_by(CropRecord.created_at.desc())
+        .all()
+    )
+    # Keep only the most recent active crop per farm (first match wins, since
+    # results are ordered newest-first)
+    crop_by_farm = {}
+    for farm_id, crop_name in current_crops:
+        crop_by_farm.setdefault(str(farm_id), crop_name)
+ 
     farm_dicts = [
-        {"id": str(f.id), "latitude": f.latitude, "longitude": f.longitude, "crop": None}
+        {
+            "id": str(f.id),
+            "latitude": f.latitude,
+            "longitude": f.longitude,
+            "crop": crop_by_farm.get(str(f.id)),
+        }
         for f in farms
     ]
-
+ 
     risk_graph = build_risk_graph(farm_dicts, infected_ids)
     return {"district": district, "risk_assessments": risk_graph}
-
 
 @router.get("/farmers")
 def list_farmers(
@@ -118,10 +138,9 @@ def list_farmers(
         crops = []
         if farm_ids:
             crops = (
-                db.query(CropRecord.crop_name)
+                db.query(CropRecord)
                 .filter(CropRecord.farm_id.in_(farm_ids))
                 .filter(CropRecord.crop_name.isnot(None))
-                .distinct()
                 .all()
             )
 
@@ -145,9 +164,9 @@ def list_farmers(
             "state": farmer.state or "N/A",
             "farms": len(farms),
             "area": round(total_area, 1),
-            "crop": ", ".join([c[0] for c in crops if c[0]]) if crops else "—",
+            "crop": ", ".join(list(set([c.crop_name for c in crops if c.crop_name]))) if crops else "—",
+            "crops_data": [{"id": str(c.id), "name": c.crop_name} for c in crops],
             "status": "alert" if has_alert else "good",
-            
         })
 
     return results
