@@ -7,6 +7,7 @@ import pytest
 from appium import webdriver
 from appium.options.android import UiAutomator2Options
 from appium_flutter_finder.flutter_finder import FlutterFinder
+from selenium.webdriver.remote.remote_connection import RemoteConnection
 
 from config.capabilities import build_capabilities
 from config.settings import settings
@@ -24,6 +25,7 @@ os.makedirs(settings.LOGS_DIR, exist_ok=True)
 # --------------------------------------------------------------------------- #
 @pytest.fixture(scope="session")
 def driver():
+    RemoteConnection.set_timeout(settings.WEBDRIVER_HTTP_TIMEOUT)
     caps = build_capabilities()
     options = UiAutomator2Options().load_capabilities(caps)
     session = webdriver.Remote(settings.APPIUM_SERVER_URL, options=options)

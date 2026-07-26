@@ -27,6 +27,7 @@ class Settings:
     IMPLICIT_WAIT = int(os.getenv("IMPLICIT_WAIT", "10"))
     EXPLICIT_WAIT = int(os.getenv("EXPLICIT_WAIT", "20"))
     NEW_COMMAND_TIMEOUT = int(os.getenv("NEW_COMMAND_TIMEOUT", "120"))
+    WEBDRIVER_HTTP_TIMEOUT = int(os.getenv("WEBDRIVER_HTTP_TIMEOUT", "30"))
 
     # Seeded/test backend credentials (mirrors selenium-tests.yml conventions)
     FARMER_PHONE = os.getenv("FARMER_PHONE", "9000000002")
