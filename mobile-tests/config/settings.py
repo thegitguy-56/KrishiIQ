@@ -9,7 +9,8 @@ import os
 class Settings:
     APPIUM_HOST = os.getenv("APPIUM_HOST", "127.0.0.1")
     APPIUM_PORT = os.getenv("APPIUM_PORT", "4723")
-    APPIUM_SERVER_URL = f"http://{APPIUM_HOST}:{APPIUM_PORT}"
+    APPIUM_BASE_PATH = os.getenv("APPIUM_BASE_PATH", "/wd/hub")
+    APPIUM_SERVER_URL = f"http://{APPIUM_HOST}:{APPIUM_PORT}{APPIUM_BASE_PATH}"
 
     PLATFORM_NAME = os.getenv("PLATFORM_NAME", "Android")
     PLATFORM_VERSION = os.getenv("PLATFORM_VERSION", "13")

@@ -12,23 +12,24 @@ except ImportError:
     _TORCH_AVAILABLE = False
 
 
+# Trained on 11 of the originally scoped 16 classes. The remaining 5
+# (Neck_Blast, Sheath_Blight, False_Smut, Downy_Mildew, Anthracnose) were
+# excluded due to lack of sufficient labeled public training data.
+# Order matches the alphabetical class order PyTorch's ImageFolder assigned
+# during training (train_ds.classes) — this order is load-bearing, do not
+# reorder without retraining or predictions will be mislabeled.
 DISEASE_CLASSES = [
-    "Healthy",
     "Bacterial_Blight",
     "Brown_Spot",
-    "Leaf_Blast",
-    "Neck_Blast",
-    "Sheath_Blight",
-    "False_Smut",
-    "Tungro",
-    "Powdery_Mildew",
-    "Downy_Mildew",
-    "Anthracnose",
-    "Rust",
     "Early_Blight",
+    "Healthy",
     "Late_Blight",
+    "Leaf_Blast",
     "Leaf_Curl",
     "Mosaic_Virus",
+    "Powdery_Mildew",
+    "Rust",
+    "Tungro",
 ]
 
 
@@ -67,6 +68,26 @@ DISEASE_TREATMENTS = {
         "en": "Apply Metalaxyl + Mancozeb. Avoid wet leaf conditions.",
         "hi": "मेटालैक्सिल + मैन्कोजेब लगाएं।",
         "ta": "மெட்டாலாக்சில் + மான்கோஜெப் பயன்படுத்தவும்.",
+    },
+    "Tungro": {
+        "en": "No direct cure. Remove and destroy infected plants. Control leafhopper vectors with recommended insecticide. Use resistant varieties next season.",
+        "hi": "कोई सीधा इलाज नहीं है। संक्रमित पौधों को हटाकर नष्ट करें। कीटनाशक से लीफहॉपर को नियंत्रित करें।",
+        "ta": "நேரடி சிகிச்சை இல்லை. பாதிக்கப்பட்ட செடிகளை அகற்றி அழிக்கவும். பூச்சிக்கொல்லி மூலம் இலைத்தாவி கட்டுப்படுத்தவும்.",
+    },
+    "Powdery_Mildew": {
+        "en": "Apply sulfur-based or Propiconazole fungicide. Improve air circulation between plants.",
+        "hi": "सल्फर आधारित या प्रोपिकोनाजोल फफूंदनाशक लगाएं। पौधों के बीच हवा का संचार बढ़ाएं।",
+        "ta": "சல்பர் அல்லது ப்ரோபிகோனசோல் பூஞ்சைக்கொல்லி பயன்படுத்தவும். செடிகளுக்கு இடையே காற்றோட்டத்தை மேம்படுத்தவும்.",
+    },
+    "Leaf_Curl": {
+        "en": "No direct cure for viral infection. Remove and destroy infected plants. Control whitefly vectors with recommended insecticide.",
+        "hi": "वायरल संक्रमण का कोई सीधा इलाज नहीं। संक्रमित पौधों को हटाकर नष्ट करें। सफेद मक्खी को नियंत्रित करें।",
+        "ta": "வைரஸ் தொற்றுக்கு நேரடி சிகிச்சை இல்லை. பாதிக்கப்பட்ட செடிகளை அகற்றி அழிக்கவும். வெள்ளை ஈயை கட்டுப்படுத்தவும்.",
+    },
+    "Mosaic_Virus": {
+        "en": "No direct cure for viral infection. Remove and destroy infected plants. Control aphid vectors and disinfect tools between plants.",
+        "hi": "वायरल संक्रमण का कोई सीधा इलाज नहीं। संक्रमित पौधों को हटाकर नष्ट करें। एफिड को नियंत्रित करें।",
+        "ta": "வைரஸ் தொற்றுக்கு நேரடி சிகிச்சை இல்லை. பாதிக்கப்பட்ட செடிகளை அகற்றி அழிக்கவும். இலை பேன் கட்டுப்படுத்தவும்.",
     },
 }
 
