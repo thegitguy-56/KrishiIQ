@@ -109,45 +109,7 @@ jobs:
           force-avd-creation: false
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back emulated -camera-front emulated
           disable-animations: true
-          script: |
-            set -e
-            echo "== Verifying emulator readiness =="
-            adb wait-for-device
-            adb shell 'while [[ -z $(getprop sys.boot_completed) ]]; do sleep 1; done;'
-            adb devices
-
-            echo "== Installing APK =="
-            adb install -r "${{ env.APK_PATH }}"
-
-            echo "== Starting Appium server =="
-            appium --base-path /wd/hub --log appium-server.log --log-level info &
-            APPIUM_PID=$!
-            for i in $(seq 1 30); do
-              curl -sf http://127.0.0.1:4723/wd/hub/status && break
-              echo "Waiting for Appium... ($i/30)"
-              sleep 2
-            done
-            curl -sf http://127.0.0.1:4723/wd/hub/status || { echo "::error::Appium server failed to start"; kill $APPIUM_PID || true; exit 1; }
-
-            echo "== Running Appium test suite (shard ${{ matrix.shard }}/4) =="
-            cd mobile-tests
-            mkdir -p reports/screenshots reports/logs
-            export APPIUM_PORT=4723
-            export APK_PATH="../${{ env.APK_PATH }}"
-            export APP_PACKAGE="${{ env.APP_PACKAGE }}"
-
-            set +e
-            python3 -m pytest \
-              --reruns 2 --reruns-delay 2 \
-              --json-report --json-report-file=reports/execution-results-shard-${{ matrix.shard }}.json \
-              --junitxml=reports/junit-shard-${{ matrix.shard }}.xml \
-              --splits 4 --group ${{ matrix.shard }} \
-              -v
-            TEST_EXIT=$?
-            set -e
-
-            kill $APPIUM_PID || true
-            exit $TEST_EXIT
+          script: chmod +x mobile-tests/scripts/ci_run_shard.sh && mobile-tests/scripts/ci_run_shard.sh "${{ matrix.shard }}" "${{ env.APK_PATH }}" "${{ env.APP_PACKAGE }}"
 
       - name: Upload shard results (always, even on failure)
         if: always()
