@@ -122,6 +122,7 @@ export const cropApi = {
   list: () => api.get('/crops/'),
   create: (data) => api.post('/crops/', data),
   update: (id, data) => api.patch(`/crops/${id}`, data),
+  predictYield: (id) => api.get(`/crops/${id}/predict-yield`),
 }
 
 export const sensorApi = {
