@@ -153,6 +153,7 @@ jobs:
           path: |
             mobile-tests/reports/execution-results-shard-*.json
             mobile-tests/reports/junit-shard-*.xml
+            mobile-tests/reports/pytest-output-shard-*.log
             mobile-tests/reports/screenshots
             mobile-tests/reports/logs
             *.log
@@ -188,8 +189,18 @@ jobs:
           python3 - <<'PY'
           import json, glob, os
 
+          # actions/upload-artifact preserves each shard job's full relative
+          # path (e.g. mobile-tests/reports/execution-results-shard-1.json)
+          # because the per-shard upload step also globs root-level *.log
+          # files, which pushes the common ancestor up to the repo root.
+          # download-artifact then recreates that path *inside* our chosen
+          # download dir, so the real files end up nested one level deeper
+          # than a flat "reports/shards/*.json" glob expects. Recurse instead
+          # of guessing the exact nesting depth.
+          found = glob.glob("reports/shards/**/execution-results-shard-*.json", recursive=True)
+
           merged = {"tests": []}
-          for f in glob.glob("reports/shards/execution-results-shard-*.json"):
+          for f in found:
               with open(f) as fh:
                   data = json.load(fh)
               merged["tests"].extend(data.get("tests", []))
@@ -198,8 +209,7 @@ jobs:
           with open("reports/execution-results.json", "w") as fh:
               json.dump(merged, fh)
 
-          print(f"Merged {len(merged['tests'])} test results from "
-                f"{len(glob.glob('reports/shards/execution-results-shard-*.json'))} shard(s).")
+          print(f"Merged {len(merged['tests'])} test results from {len(found)} shard file(s): {found}")
           PY
 
       - name: Generate Excel / HTML / summary reports

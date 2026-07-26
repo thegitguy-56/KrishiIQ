@@ -1,0 +1,74 @@
+diff --git a/.github/workflows/android-e2e.yml b/.github/workflows/android-e2e.yml
+index 018f8c1..2b8b98a 100644
+--- a/.github/workflows/android-e2e.yml
++++ b/.github/workflows/android-e2e.yml
+@@ -153,6 +153,7 @@ jobs:
+           path: |
+             mobile-tests/reports/execution-results-shard-*.json
+             mobile-tests/reports/junit-shard-*.xml
++            mobile-tests/reports/pytest-output-shard-*.log
+             mobile-tests/reports/screenshots
+             mobile-tests/reports/logs
+             *.log
+@@ -188,8 +189,18 @@ jobs:
+           python3 - <<'PY'
+           import json, glob, os
+ 
++          # actions/upload-artifact preserves each shard job's full relative
++          # path (e.g. mobile-tests/reports/execution-results-shard-1.json)
++          # because the per-shard upload step also globs root-level *.log
++          # files, which pushes the common ancestor up to the repo root.
++          # download-artifact then recreates that path *inside* our chosen
++          # download dir, so the real files end up nested one level deeper
++          # than a flat "reports/shards/*.json" glob expects. Recurse instead
++          # of guessing the exact nesting depth.
++          found = glob.glob("reports/shards/**/execution-results-shard-*.json", recursive=True)
++
+           merged = {"tests": []}
+-          for f in glob.glob("reports/shards/execution-results-shard-*.json"):
++          for f in found:
+               with open(f) as fh:
+                   data = json.load(fh)
+               merged["tests"].extend(data.get("tests", []))
+@@ -198,8 +209,7 @@ jobs:
+           with open("reports/execution-results.json", "w") as fh:
+               json.dump(merged, fh)
+ 
+-          print(f"Merged {len(merged['tests'])} test results from "
+-                f"{len(glob.glob('reports/shards/execution-results-shard-*.json'))} shard(s).")
++          print(f"Merged {len(merged['tests'])} test results from {len(found)} shard file(s): {found}")
+           PY
+ 
+       - name: Generate Excel / HTML / summary reports
+diff --git a/mobile-tests/config/settings.py b/mobile-tests/config/settings.py
+index e736132..3f7260c 100644
+--- a/mobile-tests/config/settings.py
++++ b/mobile-tests/config/settings.py
+@@ -38,7 +38,11 @@ class Settings:
+ 
+     BACKEND_BASE_URL = os.getenv("BACKEND_BASE_URL", "https://krishiiq-6su1.onrender.com")
+ 
+-    REPORTS_DIR = os.getenv("REPORTS_DIR", "mobile-tests/reports")
++    # NOTE: relative to pytest's cwd, which ci_run_shard.sh already `cd`s into
++    # mobile-tests/ before running pytest. A "mobile-tests/reports" default
++    # here double-nests to mobile-tests/mobile-tests/reports/... and silently
++    # misses the screenshots/logs paths the workflow uploads from.
++    REPORTS_DIR = os.getenv("REPORTS_DIR", "reports")
+     SCREENSHOTS_DIR = os.path.join(REPORTS_DIR, "screenshots")
+     LOGS_DIR = os.path.join(REPORTS_DIR, "logs")
+ 
+diff --git a/mobile-tests/scripts/ci_run_shard.sh b/mobile-tests/scripts/ci_run_shard.sh
+index b036eb3..4661f13 100644
+--- a/mobile-tests/scripts/ci_run_shard.sh
++++ b/mobile-tests/scripts/ci_run_shard.sh
+@@ -61,8 +61,8 @@ python3 -m pytest \
+   --json-report --json-report-file="reports/execution-results-shard-${SHARD}.json" \
+   --junitxml="reports/junit-shard-${SHARD}.xml" \
+   --splits 4 --group "${SHARD}" \
+-  -v
+-TEST_EXIT=$?
++  -v 2>&1 | tee "reports/pytest-output-shard-${SHARD}.log"
++TEST_EXIT=${PIPESTATUS[0]}
+ set -e
+ 
+ kill "$APPIUM_PID" || true

@@ -61,8 +61,8 @@ python3 -m pytest \
   --json-report --json-report-file="reports/execution-results-shard-${SHARD}.json" \
   --junitxml="reports/junit-shard-${SHARD}.xml" \
   --splits 4 --group "${SHARD}" \
-  -v
-TEST_EXIT=$?
+  -v 2>&1 | tee "reports/pytest-output-shard-${SHARD}.log"
+TEST_EXIT=${PIPESTATUS[0]}
 set -e
 
 kill "$APPIUM_PID" || true

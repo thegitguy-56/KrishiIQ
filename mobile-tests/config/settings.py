@@ -38,7 +38,11 @@ class Settings:
 
     BACKEND_BASE_URL = os.getenv("BACKEND_BASE_URL", "https://krishiiq-6su1.onrender.com")
 
-    REPORTS_DIR = os.getenv("REPORTS_DIR", "mobile-tests/reports")
+    # NOTE: relative to pytest's cwd, which ci_run_shard.sh already `cd`s into
+    # mobile-tests/ before running pytest. A "mobile-tests/reports" default
+    # here double-nests to mobile-tests/mobile-tests/reports/... and silently
+    # misses the screenshots/logs paths the workflow uploads from.
+    REPORTS_DIR = os.getenv("REPORTS_DIR", "reports")
     SCREENSHOTS_DIR = os.path.join(REPORTS_DIR, "screenshots")
     LOGS_DIR = os.path.join(REPORTS_DIR, "logs")
 
