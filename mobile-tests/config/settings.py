@@ -28,6 +28,16 @@ class Settings:
     EXPLICIT_WAIT = int(os.getenv("EXPLICIT_WAIT", "20"))
     NEW_COMMAND_TIMEOUT = int(os.getenv("NEW_COMMAND_TIMEOUT", "120"))
 
+    # Applied as the Python-process-wide default socket timeout (see
+    # conftest.py). Bounds every Appium HTTP call, including the
+    # FlutterDriver/Observatory ones that have been observed to hang
+    # indefinitely with no error and no timeout of their own. Kept well
+    # under the per-test pytest --timeout (180s) so a wedged call fails
+    # fast enough for the health-check/session-recreate logic to react,
+    # and well above the slowest legitimate wait in the suite
+    # (EXPLICIT_WAIT=20s) so it never trips on real, if slow, operations.
+    APPIUM_COMMAND_TIMEOUT = int(os.getenv("APPIUM_COMMAND_TIMEOUT", "45"))
+
     # Seeded/test backend credentials (mirrors selenium-tests.yml conventions)
     FARMER_PHONE = os.getenv("FARMER_PHONE", "9000000002")
     FARMER_PASSWORD = os.getenv("FARMER_PASSWORD", "farmer123")
