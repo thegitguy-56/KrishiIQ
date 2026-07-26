@@ -78,6 +78,40 @@ jobs:
         working-directory: mobile-tests
         run: pip install -r requirements.txt
 
+      - name: Install backend runtime dependencies
+        working-directory: backend
+        run: pip install -r requirements.txt
+
+      - name: Start FastAPI backend (ephemeral SQLite, auto-seeded)
+        working-directory: backend
+        env:
+          DATABASE_URL: "sqlite:///./ci_test.db"
+          SECRET_KEY: ${{ secrets.CI_TEST_JWT_SECRET || 'ci-ephemeral-secret-do-not-reuse' }}
+          REDIS_URL: ""
+          ENVIRONMENT: "development"
+          CORS_ORIGINS: "http://localhost:5173,http://localhost:3000,http://127.0.0.1:5173"
+        run: |
+          # Bound to 0.0.0.0 (not just 127.0.0.1) and on port 8001 specifically —
+          # mobile/lib/config/app_config.dart hardcodes the app's API base URL to
+          # http://10.0.2.2:8001, which is the Android emulator's fixed alias for
+          # the host machine's loopback interface. Port 8000 (used by
+          # backend-tests.yml) would NOT match what's baked into the built APK.
+          nohup uvicorn app.main:app --host 0.0.0.0 --port 8001 > ../backend-server.log 2>&1 &
+          echo $! > ../backend-server.pid
+
+      - name: Wait for backend health check
+        run: |
+          for i in $(seq 1 60); do
+            if curl -sf http://127.0.0.1:8001/health > /dev/null; then
+              echo "Backend is healthy."
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "::error::Backend did not become healthy within 60s."
+          cat backend-server.log || true
+          exit 1
+
       - name: Set up Node.js (for Appium server)
         uses: actions/setup-node@v4
         with:
