@@ -194,6 +194,11 @@ class ApiService {
     return res.data;
   }
 
+  Future<Map<String, dynamic>> predictYield(String cropId) async {
+    final res = await _dio.get('/crops/$cropId/predict-yield');
+    return res.data;
+  }
+
   Future<Map<String, dynamic>> getPublicConfig() async {
     final res = await _dio.get('/ai/config/public');
     return res.data;
