@@ -9,6 +9,7 @@ from data.test_data import VALID_FARMER, VALID_OFFICER, VALID_ADMIN, NAV_ROUTES
 from pages.login_page import LoginPage
 from pages.advisory_page import ProfilePage
 from pages.welcome_page import WelcomePage
+from utils.flutter_helpers import text_visible
 
 pytestmark = pytest.mark.authorization
 
@@ -48,8 +49,7 @@ def test_unauthenticated_direct_access_redirects(driver, finder, route):
 def test_farmer_role_has_no_admin_controls(driver, finder):
     """AUTHZ: farmer role sees only farmer-facing tabs (Home/Advisory/Sensors/History/Profile), no admin UI."""
     page = _login_as(driver, finder, "farmer")
-    src = driver.page_source
-    assert "Admin" not in src
+    assert not text_visible(driver, finder, "Admin", timeout=2)
 
 
 @pytest.mark.p1

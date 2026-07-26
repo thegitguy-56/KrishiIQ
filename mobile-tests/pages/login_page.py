@@ -28,12 +28,3 @@ class LoginPage(BasePage):
         self.enter_password(password)
         self.submit()
         self.wait(2)
-
-    def get_snackbar_text(self) -> str:
-        # Flutter SnackBars render as plain text widgets; find_element with
-        # a generic text search catches the message shown to the user.
-        import re
-
-        source = self.driver.page_source
-        match = re.search(r"<text[^>]*>([^<]{3,120})</text>", source)
-        return match.group(1) if match else ""

@@ -9,6 +9,7 @@ from data.test_data import VALID_FARMER
 from pages.login_page import LoginPage
 from pages.home_page import HomePage
 from pages.welcome_page import WelcomePage
+from utils.flutter_helpers import text_visible
 
 pytestmark = pytest.mark.accessibility
 
@@ -26,7 +27,7 @@ def test_login_fields_have_accessible_labels(driver, finder):
     """A11Y: phone and password fields expose readable label text for screen readers (labelText renders as semantics)."""
     welcome = WelcomePage(driver, finder)
     welcome.go_to_login()
-    assert "Phone Number" in driver.page_source and "Password" in driver.page_source
+    assert text_visible(driver, finder, "Phone Number") and text_visible(driver, finder, "Password")
 
 
 @pytest.mark.p2
@@ -34,7 +35,7 @@ def test_login_submit_button_has_readable_label(driver, finder):
     """A11Y: the login submit button exposes readable text ('Sign In') to screen readers."""
     welcome = WelcomePage(driver, finder)
     welcome.go_to_login()
-    assert "Sign In" in driver.page_source
+    assert text_visible(driver, finder, "Sign In")
 
 
 @pytest.mark.p2
@@ -42,7 +43,7 @@ def test_bottom_nav_labels_present_for_screen_readers(driver, finder):
     """A11Y: all 5 bottom-nav destination labels are present in the widget tree (TalkBack-readable)."""
     _login(driver, finder)
     for label in ["Home", "Advisory", "Sensors", "History", "Profile"]:
-        assert label in driver.page_source
+        assert text_visible(driver, finder, label)
 
 
 @pytest.mark.p3
@@ -58,7 +59,7 @@ def test_quick_action_tiles_have_text_labels(driver, finder):
     """A11Y: every Quick Action tile has a visible text label (not icon-only), aiding screen-reader users."""
     _login(driver, finder)
     for label in HomePage.QUICK_ACTIONS:
-        assert label in driver.page_source
+        assert text_visible(driver, finder, label)
 
 
 @pytest.mark.p3
@@ -83,7 +84,7 @@ def test_register_form_fields_have_accessible_labels(driver, finder):
     welcome = WelcomePage(driver, finder)
     welcome.go_to_register()
     for label in ["Full Name", "Email", "Mobile Number", "Password", "District"]:
-        assert label in driver.page_source
+        assert text_visible(driver, finder, label)
 
 
 @pytest.mark.p3
@@ -102,7 +103,7 @@ def test_advisory_speak_icon_has_semantics(driver, finder):
     from pages.main_shell_page import MainShellPage
 
     MainShellPage(driver, finder).go_advisory()
-    assert "record_voice_over" in driver.page_source.lower() or "Personalized Advisory" in driver.page_source
+    assert text_visible(driver, finder, "Personalized Advisory")
 
 
 @pytest.mark.p2
@@ -110,4 +111,4 @@ def test_farm_setup_fields_have_accessible_labels(driver, finder):
     """A11Y: Farm Setup form fields expose readable labels ('Farm Name', 'Land Area (acres)', etc.) for screen readers."""
     _login(driver, finder)
     for label in ["Farm Name", "Land Area", "Primary Crop", "Soil Type"]:
-        assert label in driver.page_source
+        assert text_visible(driver, finder, label)

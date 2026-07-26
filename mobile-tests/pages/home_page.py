@@ -19,10 +19,10 @@ class HomePage(BasePage):
         self.wait(1)
 
     def has_weather_card(self) -> bool:
-        return "WeatherCard" in self.driver.page_source or "weather" in self.driver.page_source.lower()
+        return self.is_present(self.by_type("WeatherCard"), timeout=4)
 
     def has_quick_actions_header(self) -> bool:
-        return "Quick Actions" in self.driver.page_source
+        return self.is_text_present("Quick Actions", timeout=4)
 
     def pull_to_refresh(self):
         try:

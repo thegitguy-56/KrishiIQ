@@ -10,6 +10,7 @@ from pages.login_page import LoginPage
 from pages.advisory_page import AdvisoryPage, ProfilePage
 from pages.main_shell_page import MainShellPage
 from pages.welcome_page import WelcomePage
+from utils.flutter_helpers import text_visible
 
 pytestmark = pytest.mark.advisory_profile
 
@@ -30,7 +31,7 @@ def test_advisory_feed_loads(driver, finder):
     shell.go_advisory()
     page = AdvisoryPage(driver, finder)
     page.wait(1.5)
-    assert "Personalized Advisory" in driver.page_source
+    assert text_visible(driver, finder, "Personalized Advisory")
 
 
 @pytest.mark.p2
@@ -57,7 +58,7 @@ def test_profile_screen_loads(driver, finder):
     """PROFILE: the Profile tab loads and shows 'Input Farm Data' and 'Sign Out' entries."""
     shell = _login_to_main(driver, finder)
     shell.go_profile()
-    assert "Profile" in driver.page_source
+    assert text_visible(driver, finder, "Profile")  # bottom-nav label; confirms nav bar rendered
 
 
 @pytest.mark.p1
@@ -67,7 +68,7 @@ def test_profile_navigate_to_input_farm_data(driver, finder):
     shell.go_profile()
     page = ProfilePage(driver, finder)
     page.go_to_input_farm_data()
-    assert "Input Farm Data" in driver.page_source
+    assert text_visible(driver, finder, "Input Farm Data")
 
 
 @pytest.mark.p2

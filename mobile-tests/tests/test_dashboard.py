@@ -9,6 +9,7 @@ from data.test_data import VALID_FARMER
 from pages.login_page import LoginPage
 from pages.home_page import HomePage
 from pages.welcome_page import WelcomePage
+from utils.flutter_helpers import text_visible
 
 pytestmark = pytest.mark.dashboard
 
@@ -24,9 +25,16 @@ def _open_home(driver, finder):
 
 @pytest.mark.p1
 def test_dashboard_greeting_visible(driver, finder):
-    """DASHBOARD: the farmer greeting header renders on the Home tab."""
+    """DASHBOARD: the farmer greeting header renders on the Home tab.
+
+    Note: the greeting text is dynamically interpolated ('Vanakkam, {name}!')
+    so it can't be matched with an exact byText finder without knowing the
+    seeded farmer's name. This checks the static 'Quick Actions' header
+    instead, which only renders once the dashboard (and therefore the
+    greeting above it) has successfully loaded.
+    """
     page = _open_home(driver, finder)
-    assert "Farmer" in driver.page_source or "Vanakkam" in driver.page_source
+    assert text_visible(driver, finder, "Quick Actions")
 
 
 @pytest.mark.p1
@@ -85,7 +93,9 @@ def test_dashboard_reload_stability(driver, finder, cycle):
 def test_dashboard_language_reflects_in_subtitle(driver, finder):
     """DASHBOARD: the 'What shall we do today?' subtitle reflects the active app language."""
     page = _open_home(driver, finder)
-    assert "today" in driver.page_source.lower() or "செய்வோம்" in driver.page_source
+    assert text_visible(driver, finder, "What shall we do today?") or text_visible(
+        driver, finder, "இன்று என்ன செய்வோம்?"
+    )
 
 
 @pytest.mark.p2

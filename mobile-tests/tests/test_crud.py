@@ -14,6 +14,7 @@ from pages.farm_pages import FarmSetupPage, FarmDataInputPage, SensorsPage
 from pages.main_shell_page import MainShellPage
 from pages.advisory_page import ProfilePage
 from pages.welcome_page import WelcomePage
+from utils.flutter_helpers import text_visible
 
 pytestmark = pytest.mark.crud
 
@@ -96,7 +97,7 @@ def test_read_history_screen_lists_entries(driver, finder):
     """CRUD-READ: the History tab lists previously created disease-detection/advisory records."""
     _login(driver, finder)
     MainShellPage(driver, finder).go_history()
-    assert "History" in driver.page_source
+    assert text_visible(driver, finder, "History")  # bottom-nav label
 
 
 @pytest.mark.p2
@@ -106,7 +107,7 @@ def test_read_farm_map_lists_farms(driver, finder):
     from pages.home_page import HomePage
 
     HomePage(driver, finder).open_quick_action("My Farms")
-    assert "farms" in driver.page_source.lower()
+    assert text_visible(driver, finder, "My Farms Map")
 
 
 @pytest.mark.p2
@@ -114,7 +115,7 @@ def test_read_sensors_tab_lists_data(driver, finder):
     """CRUD-READ: the Sensors tab reads and lists paired IoT sensor data."""
     _login(driver, finder)
     MainShellPage(driver, finder).go_sensors()
-    assert "Sensor" in driver.page_source
+    assert text_visible(driver, finder, "IoT Sensors")
 
 
 @pytest.mark.p2

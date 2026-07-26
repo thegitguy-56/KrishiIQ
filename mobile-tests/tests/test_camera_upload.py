@@ -9,6 +9,7 @@ from data.test_data import VALID_FARMER
 from pages.login_page import LoginPage
 from pages.crop_health_page import CropHealthPage
 from pages.welcome_page import WelcomePage
+from utils.flutter_helpers import text_visible
 
 pytestmark = pytest.mark.camera
 
@@ -34,7 +35,7 @@ def test_camera_source_option_present(driver, finder):
     """CAMERA: 'Camera' option is present in the image source dialog."""
     page = _open_crop_health(driver, finder)
     page.open_image_source_dialog()
-    assert "Camera" in driver.page_source
+    assert text_visible(driver, finder, "Camera")
 
 
 @pytest.mark.p1
@@ -42,7 +43,7 @@ def test_gallery_source_option_present(driver, finder):
     """CAMERA: 'Gallery' option is present in the image source dialog."""
     page = _open_crop_health(driver, finder)
     page.open_image_source_dialog()
-    assert "Gallery" in driver.page_source
+    assert text_visible(driver, finder, "Gallery")
 
 
 @pytest.mark.p1
@@ -169,12 +170,12 @@ def test_camera_selection_cycles(driver, finder, cycle):
 def test_crop_health_screen_title_visible(driver, finder):
     """CAMERA: the 'Crop Disease Detection' app-bar title renders on screen entry."""
     page = _open_crop_health(driver, finder)
-    assert "Crop Disease Detection" in driver.page_source
+    assert text_visible(driver, finder, "Crop Disease Detection")
 
 
 @pytest.mark.p3
 def test_placeholder_hint_visible_before_upload(driver, finder):
     """CAMERA: the 'Tap to capture or upload crop image' hint is visible before any image is chosen."""
     page = _open_crop_health(driver, finder)
-    assert "Tap to capture or upload" in driver.page_source
+    assert text_visible(driver, finder, "Tap to capture or upload crop image")
 

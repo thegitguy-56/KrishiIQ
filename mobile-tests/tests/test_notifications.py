@@ -20,6 +20,7 @@ from data.test_data import VALID_FARMER
 from pages.login_page import LoginPage
 from pages.home_page import HomePage
 from pages.welcome_page import WelcomePage
+from utils.flutter_helpers import key_visible
 
 pytestmark = pytest.mark.notifications
 
@@ -36,7 +37,7 @@ def _login(driver, finder):
 def test_notifications_icon_present_on_home(driver, finder):
     """NOTIFICATIONS: the notification bell icon renders in the Home app bar."""
     _login(driver, finder)
-    assert "notifications" in driver.page_source.lower()
+    assert key_visible(driver, finder, HomePage.NOTIFICATIONS_BUTTON)
 
 
 @pytest.mark.p2
@@ -57,7 +58,7 @@ def test_notifications_icon_survives_tab_navigation(driver, finder):
     shell = MainShellPage(driver, finder)
     shell.go_profile()
     shell.go_home()
-    assert "notifications" in driver.page_source.lower()
+    assert key_visible(driver, finder, HomePage.NOTIFICATIONS_BUTTON)
 
 
 @pytest.mark.p3
@@ -80,7 +81,7 @@ def test_notifications_icon_present_for_every_role(driver, finder, role):
     welcome = WelcomePage(driver, finder)
     welcome.go_to_login()
     LoginPage(driver, finder).login(creds["phone"], creds["password"])
-    assert "notifications" in driver.page_source.lower()
+    assert key_visible(driver, finder, HomePage.NOTIFICATIONS_BUTTON)
 
 
 @pytest.mark.p3

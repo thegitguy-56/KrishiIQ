@@ -11,7 +11,7 @@ class AdvisoryPage(BasePage):
         self.tap(el)
 
     def has_any_advisory_card(self) -> bool:
-        return "PersonalizedAdvisory" in self.driver.page_source or "advisory" in self.driver.page_source.lower()
+        return self.is_text_present("Personalized Advisory", timeout=4)
 
 
 class ProfilePage(BasePage):

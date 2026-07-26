@@ -13,6 +13,7 @@ from pages.crop_health_page import CropHealthPage
 from pages.ai_chat_page import AiChatPage
 from pages.main_shell_page import MainShellPage
 from pages.welcome_page import WelcomePage
+from utils.flutter_helpers import text_visible
 
 pytestmark = pytest.mark.offline
 
@@ -67,7 +68,7 @@ def test_dashboard_cached_data_visible_offline(driver, finder):
     _login(driver, finder)
     if not _toggle_offline(driver):
         pytest.skip("Network toggling not supported on this emulator profile")
-    assert "Farmer" in driver.page_source or "Vanakkam" in driver.page_source
+    assert text_visible(driver, finder, "Quick Actions")  # dashboard-reached marker (greeting text is dynamically interpolated)
     _toggle_online(driver)
 
 

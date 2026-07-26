@@ -2,8 +2,22 @@ import time
 
 from utils.logger import get_logger
 from utils.retry import retry
+from utils.flutter_helpers import text_visible, key_visible
 
 log = get_logger(__name__)
+
+# appium-flutter-driver has no concept of a URL/route string (that's a
+# go_router-internal detail, never exposed to the widget tree or any
+# Appium command). current_route_contains() therefore checks for a
+# screen-specific visible-text marker instead, mapped from the fragment
+# names used throughout the suite.
+_ROUTE_TEXT_MARKERS = {
+    "main": "Quick Actions",
+    "mainshell": "Quick Actions",
+    "farm-setup": "Land Area",
+    "login": "Phone Number",
+    "register": "Full Name",
+}
 
 
 class BasePage:
@@ -30,6 +44,11 @@ class BasePage:
         from appium_flutter_finder import FlutterElement
 
         return FlutterElement(self.driver, self.finder.by_tooltip(message))
+
+    def by_type(self, widget_type: str):
+        from appium_flutter_finder import FlutterElement
+
+        return FlutterElement(self.driver, self.finder.by_type(widget_type))
 
     # -- actions (retry-wrapped for flaky-widget-tree timing) --------------
     @retry(times=2, delay=1)
@@ -61,13 +80,20 @@ class BasePage:
                 time.sleep(0.5)
         return False
 
+    def is_text_present(self, text: str, timeout: float = 5) -> bool:
+        return text_visible(self.driver, self.finder, text, timeout)
+
+    def is_key_present(self, value_key: str, timeout: float = 5) -> bool:
+        return key_visible(self.driver, self.finder, value_key, timeout)
+
     def current_route_contains(self, fragment: str) -> bool:
-        """Best-effort route check via page_source (go_router exposes the
-        route name in the widget tree for debug builds)."""
-        try:
-            return fragment in self.driver.page_source
-        except Exception:  # noqa: BLE001
-            return False
+        """Best-effort screen check via a visible-text marker (see
+        _ROUTE_TEXT_MARKERS). appium-flutter-driver has no route/URL
+        concept and no getPageSource, so an exact route match isn't
+        possible — this checks for text that's unique to the target
+        screen instead."""
+        marker = _ROUTE_TEXT_MARKERS.get(fragment.lower(), fragment)
+        return self.is_text_present(marker, timeout=4)
 
     def take_screenshot(self, name: str):
         from config.settings import settings

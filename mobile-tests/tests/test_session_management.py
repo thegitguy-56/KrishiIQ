@@ -9,6 +9,7 @@ from data.test_data import VALID_FARMER, VALID_OFFICER, VALID_ADMIN
 from pages.login_page import LoginPage
 from pages.home_page import HomePage
 from pages.welcome_page import WelcomePage
+from utils.flutter_helpers import text_visible
 
 pytestmark = pytest.mark.session
 
@@ -71,7 +72,7 @@ def test_session_survives_short_idle_periods(driver, finder, idle_seconds):
     import time
 
     time.sleep(idle_seconds)
-    assert "Farmer" in driver.page_source or "Vanakkam" in driver.page_source
+    assert text_visible(driver, finder, "Quick Actions")  # dashboard-reached marker (greeting text is dynamically interpolated)
 
 
 @pytest.mark.p2
@@ -84,10 +85,19 @@ def test_repeated_login_logout_cycles(driver, finder, cycle):
 
 @pytest.mark.p3
 def test_session_token_not_visible_in_ui(driver, finder):
-    """SESSION: no raw auth token/JWT string is rendered anywhere in the visible UI/page source."""
+    """SESSION: no raw auth token/JWT string is rendered anywhere in the visible UI.
+
+    Note: appium-flutter-driver does not implement getPageSource, so a
+    full-widget-tree text scan (which this check would need to be
+    thorough) isn't available through this driver. As a targeted proxy,
+    this confirms the token isn't rendered on the one screen most likely
+    to leak it accidentally (Home, right after login) by checking for the
+    common JWT header prefix. It is not a substitute for a full-tree scan
+    if you need airtight coverage — consider a widget/unit test in the
+    Flutter app itself for that.
+    """
     _login(driver, finder, "farmer")
-    src = driver.page_source
-    assert "eyJ" not in src  # common JWT header prefix should never leak into rendered text
+    assert not text_visible(driver, finder, "eyJ", timeout=2)
 
 
 @pytest.mark.p3

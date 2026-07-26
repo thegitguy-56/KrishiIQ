@@ -10,6 +10,7 @@ from pages.login_page import LoginPage
 from pages.home_page import HomePage
 from pages.main_shell_page import MainShellPage
 from pages.welcome_page import WelcomePage
+from utils.flutter_helpers import text_visible
 
 pytestmark = pytest.mark.responsive
 
@@ -46,7 +47,7 @@ def test_dashboard_grid_landscape_rendering(driver, finder):
     _login(driver, finder)
     if not _rotate(driver, "LANDSCAPE"):
         pytest.skip("Orientation change not supported on this emulator profile")
-    assert "Quick Actions" in driver.page_source
+    assert text_visible(driver, finder, "Quick Actions")
     _rotate(driver, "PORTRAIT")
 
 
@@ -67,7 +68,7 @@ def test_register_form_landscape_rendering(driver, finder):
     welcome.go_to_register()
     if not _rotate(driver, "LANDSCAPE"):
         pytest.skip("Orientation change not supported on this emulator profile")
-    assert "Full Name" in driver.page_source
+    assert text_visible(driver, finder, "Full Name")
     _rotate(driver, "PORTRAIT")
 
 
@@ -108,5 +109,5 @@ def test_bottom_nav_bar_landscape_rendering(driver, finder):
     if not _rotate(driver, "LANDSCAPE"):
         pytest.skip("Orientation change not supported on this emulator profile")
     for label in ["Home", "Advisory", "Sensors", "History", "Profile"]:
-        assert label in driver.page_source
+        assert text_visible(driver, finder, label)
     _rotate(driver, "PORTRAIT")
