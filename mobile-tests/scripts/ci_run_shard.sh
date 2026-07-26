@@ -9,8 +9,16 @@
 set -e
 
 SHARD="$1"
-APK_PATH="$2"
+APK_PATH_REL="$2"
 APP_PACKAGE="$3"
+
+# Resolve to an absolute path up front. The Appium server resolves the
+# `appium:app` capability relative to ITS OWN working directory (repo
+# root, since it's started before we `cd mobile-tests` below), while the
+# pytest client would need it relative to mobile-tests/. An absolute path
+# sidesteps the mismatch entirely, regardless of which process resolves it.
+APK_PATH="$(cd "$(dirname "${APK_PATH_REL}")" && pwd)/$(basename "${APK_PATH_REL}")"
+echo "Resolved absolute APK path: ${APK_PATH}"
 
 echo "== Verifying emulator readiness =="
 adb wait-for-device
@@ -44,7 +52,7 @@ echo "== Running Appium test suite (shard ${SHARD}/4) =="
 cd mobile-tests
 mkdir -p reports/screenshots reports/logs
 export APPIUM_PORT=4723
-export APK_PATH="../${APK_PATH}"
+export APK_PATH="${APK_PATH}"
 export APP_PACKAGE="${APP_PACKAGE}"
 
 set +e
