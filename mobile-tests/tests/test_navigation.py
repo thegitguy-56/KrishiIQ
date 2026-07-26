@@ -14,7 +14,6 @@ pytestmark = pytest.mark.navigation
 
 
 def _login_to_main(driver, finder):
-    driver.activate_app("com.krishiiq.krishiiq")
     welcome = WelcomePage(driver, finder)
     welcome.go_to_login()
     login = LoginPage(driver, finder)
@@ -61,7 +60,6 @@ def test_back_button_from_each_tab(driver, finder, tab):
 @pytest.mark.p3
 def test_welcome_to_login_navigation(driver, finder):
     """NAV: Welcome screen 'Sign In' button routes to the login screen."""
-    driver.activate_app("com.krishiiq.krishiiq")
     welcome = WelcomePage(driver, finder)
     welcome.go_to_login()
     assert "Sign In" in driver.page_source or "Phone Number" in driver.page_source
@@ -70,7 +68,6 @@ def test_welcome_to_login_navigation(driver, finder):
 @pytest.mark.p3
 def test_welcome_to_register_navigation(driver, finder):
     """NAV: Welcome screen 'Register' button routes to the registration screen."""
-    driver.activate_app("com.krishiiq.krishiiq")
     welcome = WelcomePage(driver, finder)
     welcome.go_to_register()
     assert "Create Account" in driver.page_source

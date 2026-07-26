@@ -14,7 +14,6 @@ pytestmark = pytest.mark.accessibility
 
 
 def _login(driver, finder):
-    driver.activate_app("com.krishiiq.krishiiq")
     welcome = WelcomePage(driver, finder)
     welcome.go_to_login()
     login = LoginPage(driver, finder)
@@ -25,7 +24,6 @@ def _login(driver, finder):
 @pytest.mark.p2
 def test_login_fields_have_accessible_labels(driver, finder):
     """A11Y: phone and password fields expose readable label text for screen readers (labelText renders as semantics)."""
-    driver.activate_app("com.krishiiq.krishiiq")
     welcome = WelcomePage(driver, finder)
     welcome.go_to_login()
     assert "Phone Number" in driver.page_source and "Password" in driver.page_source
@@ -34,7 +32,6 @@ def test_login_fields_have_accessible_labels(driver, finder):
 @pytest.mark.p2
 def test_login_submit_button_has_readable_label(driver, finder):
     """A11Y: the login submit button exposes readable text ('Sign In') to screen readers."""
-    driver.activate_app("com.krishiiq.krishiiq")
     welcome = WelcomePage(driver, finder)
     welcome.go_to_login()
     assert "Sign In" in driver.page_source
@@ -72,7 +69,6 @@ def test_ui_resilient_to_font_scaling(driver, finder, scale):
         driver.update_settings({"fontScale": scale})
     except Exception:
         pytest.skip("Font-scale override not supported on this driver/emulator profile")
-    driver.activate_app("com.krishiiq.krishiiq")
     welcome = WelcomePage(driver, finder)
     welcome.go_to_login()
     try:
@@ -84,7 +80,6 @@ def test_ui_resilient_to_font_scaling(driver, finder, scale):
 @pytest.mark.p3
 def test_register_form_fields_have_accessible_labels(driver, finder):
     """A11Y: all registration form fields expose readable labels for screen readers."""
-    driver.activate_app("com.krishiiq.krishiiq")
     welcome = WelcomePage(driver, finder)
     welcome.go_to_register()
     for label in ["Full Name", "Email", "Mobile Number", "Password", "District"]:
@@ -94,7 +89,6 @@ def test_register_form_fields_have_accessible_labels(driver, finder):
 @pytest.mark.p3
 def test_password_visibility_toggle_has_icon_semantics(driver, finder):
     """A11Y: the password-visibility eye icon is reachable as a distinct focusable control."""
-    driver.activate_app("com.krishiiq.krishiiq")
     welcome = WelcomePage(driver, finder)
     welcome.go_to_login()
     page = LoginPage(driver, finder)

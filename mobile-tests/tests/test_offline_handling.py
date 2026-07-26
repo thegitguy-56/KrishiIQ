@@ -33,7 +33,6 @@ def _toggle_online(driver):
 
 
 def _login(driver, finder):
-    driver.activate_app("com.krishiiq.krishiiq")
     welcome = WelcomePage(driver, finder)
     welcome.go_to_login()
     login = LoginPage(driver, finder)
@@ -47,7 +46,6 @@ def test_app_launches_while_offline(driver, finder):
     driver.terminate_app("com.krishiiq.krishiiq")
     if not _toggle_offline(driver):
         pytest.skip("Network toggling not supported on this emulator profile")
-    driver.activate_app("com.krishiiq.krishiiq")
     driver.wait_activity if hasattr(driver, "wait_activity") else None
     _toggle_online(driver)
 
@@ -55,7 +53,6 @@ def test_app_launches_while_offline(driver, finder):
 @pytest.mark.p1
 def test_login_attempt_offline_shows_error(driver, finder):
     """OFFLINE: attempting login while offline shows a connectivity error, no crash/hang."""
-    driver.activate_app("com.krishiiq.krishiiq")
     welcome = WelcomePage(driver, finder)
     welcome.go_to_login()
     if not _toggle_offline(driver):
@@ -174,7 +171,6 @@ def test_offline_then_relaunch_recovers(driver, finder):
         pytest.skip("Network toggling not supported on this emulator profile")
     driver.terminate_app("com.krishiiq.krishiiq")
     _toggle_online(driver)
-    driver.activate_app("com.krishiiq.krishiiq")
 
 
 @pytest.mark.p3
@@ -193,7 +189,6 @@ def test_sensor_pairing_offline_errors_gracefully(driver, finder):
 @pytest.mark.p3
 def test_registration_offline_errors_gracefully(driver, finder):
     """OFFLINE: attempting registration while offline surfaces a clear error rather than hanging or crashing."""
-    driver.activate_app("com.krishiiq.krishiiq")
     welcome = WelcomePage(driver, finder)
     welcome.go_to_register()
     if not _toggle_offline(driver):

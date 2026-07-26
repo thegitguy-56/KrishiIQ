@@ -17,7 +17,6 @@ PROTECTED_ROUTES = NAV_ROUTES[3:]  # everything after /login requires auth
 
 
 def _login_as(driver, finder, role):
-    driver.activate_app("com.krishiiq.krishiiq")
     welcome = WelcomePage(driver, finder)
     welcome.go_to_login()
     page = LoginPage(driver, finder)

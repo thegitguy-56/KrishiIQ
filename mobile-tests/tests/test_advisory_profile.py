@@ -15,7 +15,6 @@ pytestmark = pytest.mark.advisory_profile
 
 
 def _login_to_main(driver, finder):
-    driver.activate_app("com.krishiiq.krishiiq")
     welcome = WelcomePage(driver, finder)
     welcome.go_to_login()
     login = LoginPage(driver, finder)

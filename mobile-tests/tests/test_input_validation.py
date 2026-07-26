@@ -26,7 +26,6 @@ pytestmark = pytest.mark.input_validation
 
 
 def _login(driver, finder):
-    driver.activate_app("com.krishiiq.krishiiq")
     welcome = WelcomePage(driver, finder)
     welcome.go_to_login()
     login = LoginPage(driver, finder)
@@ -48,7 +47,6 @@ def test_chat_input_validation(driver, finder, message, label):
 @pytest.mark.parametrize("length", [9, 10, 11], ids=["9_digits", "10_digits_valid", "11_digits"])
 def test_login_phone_length_boundary(driver, finder, length):
     """VALIDATION: login phone-number field enforces the 10-digit boundary precisely."""
-    driver.activate_app("com.krishiiq.krishiiq")
     welcome = WelcomePage(driver, finder)
     welcome.go_to_login()
     page = LoginPage(driver, finder)
@@ -60,7 +58,6 @@ def test_login_phone_length_boundary(driver, finder, length):
 @pytest.mark.parametrize("length", [9, 10, 11], ids=["9_digits", "10_digits_valid", "11_digits"])
 def test_register_phone_length_boundary(driver, finder, length):
     """VALIDATION: registration phone-number field enforces the 10-digit boundary precisely."""
-    driver.activate_app("com.krishiiq.krishiiq")
     welcome = WelcomePage(driver, finder)
     welcome.go_to_register()
     page = RegisterPage(driver, finder)
@@ -71,7 +68,6 @@ def test_register_phone_length_boundary(driver, finder, length):
 @pytest.mark.parametrize("email,label", INVALID_EMAILS, ids=[l for _, l in INVALID_EMAILS])
 def test_email_field_format_validation(driver, finder, email, label):
     """VALIDATION: registration email field rejects all malformed variants (empty/no-@/no-domain/spaces/double-@)."""
-    driver.activate_app("com.krishiiq.krishiiq")
     welcome = WelcomePage(driver, finder)
     welcome.go_to_register()
     page = RegisterPage(driver, finder)
@@ -83,7 +79,6 @@ def test_email_field_format_validation(driver, finder, email, label):
 @pytest.mark.parametrize("password,label", INVALID_PASSWORDS, ids=[l for _, l in INVALID_PASSWORDS])
 def test_password_field_minimum_length_validation(driver, finder, password, label):
     """VALIDATION: registration password field enforces the 6-character minimum for every boundary/edge value."""
-    driver.activate_app("com.krishiiq.krishiiq")
     welcome = WelcomePage(driver, finder)
     welcome.go_to_register()
     page = RegisterPage(driver, finder)
@@ -113,7 +108,6 @@ def test_chat_injection_payload_safety(driver, finder, payload, label):
 @pytest.mark.p3
 def test_leading_trailing_whitespace_trimmed(driver, finder):
     """VALIDATION: leading/trailing whitespace in the login phone field is trimmed before validation (per _login logic)."""
-    driver.activate_app("com.krishiiq.krishiiq")
     welcome = WelcomePage(driver, finder)
     welcome.go_to_login()
     page = LoginPage(driver, finder)

@@ -22,7 +22,6 @@ pytestmark = pytest.mark.authentication
 
 
 def _open_login(driver, finder):
-    driver.activate_app("com.krishiiq.krishiiq")
     welcome = WelcomePage(driver, finder)
     welcome.go_to_login()
     return LoginPage(driver, finder)
@@ -97,7 +96,6 @@ def test_valid_registration(driver, finder, locale):
     """AUTH: registering a new farmer with valid data and each supported locale succeeds."""
     import random
 
-    driver.activate_app("com.krishiiq.krishiiq")
     welcome = WelcomePage(driver, finder)
     welcome.go_to_register()
     page = RegisterPage(driver, finder)
@@ -116,7 +114,6 @@ def test_valid_registration(driver, finder, locale):
 @pytest.mark.parametrize("email,label", INVALID_EMAILS, ids=[l for _, l in INVALID_EMAILS])
 def test_register_invalid_email(driver, finder, email, label):
     """AUTH: registration with malformed emails is blocked client-side."""
-    driver.activate_app("com.krishiiq.krishiiq")
     welcome = WelcomePage(driver, finder)
     welcome.go_to_register()
     page = RegisterPage(driver, finder)
@@ -127,7 +124,6 @@ def test_register_invalid_email(driver, finder, email, label):
 @pytest.mark.p2
 def test_register_password_below_minimum(driver, finder):
     """AUTH: registration is blocked when password is under the 6-character minimum."""
-    driver.activate_app("com.krishiiq.krishiiq")
     welcome = WelcomePage(driver, finder)
     welcome.go_to_register()
     page = RegisterPage(driver, finder)

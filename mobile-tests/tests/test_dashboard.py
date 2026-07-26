@@ -14,7 +14,6 @@ pytestmark = pytest.mark.dashboard
 
 
 def _open_home(driver, finder):
-    driver.activate_app("com.krishiiq.krishiiq")
     welcome = WelcomePage(driver, finder)
     welcome.go_to_login()
     login = LoginPage(driver, finder)

@@ -16,7 +16,6 @@ ROLES = {"farmer": VALID_FARMER, "officer": VALID_OFFICER, "admin": VALID_ADMIN}
 
 
 def _login(driver, finder, role="farmer"):
-    driver.activate_app("com.krishiiq.krishiiq")
     welcome = WelcomePage(driver, finder)
     welcome.go_to_login()
     login = LoginPage(driver, finder)

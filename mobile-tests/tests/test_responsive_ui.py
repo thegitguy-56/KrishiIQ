@@ -15,7 +15,6 @@ pytestmark = pytest.mark.responsive
 
 
 def _login(driver, finder):
-    driver.activate_app("com.krishiiq.krishiiq")
     welcome = WelcomePage(driver, finder)
     welcome.go_to_login()
     login = LoginPage(driver, finder)
@@ -34,7 +33,6 @@ def _rotate(driver, orientation):
 @pytest.mark.p2
 def test_login_screen_landscape_rendering(driver, finder):
     """RESPONSIVE: the login screen renders without overflow errors in landscape orientation."""
-    driver.activate_app("com.krishiiq.krishiiq")
     welcome = WelcomePage(driver, finder)
     welcome.go_to_login()
     if not _rotate(driver, "LANDSCAPE"):
@@ -65,7 +63,6 @@ def test_advisory_feed_landscape_scroll(driver, finder):
 @pytest.mark.p3
 def test_register_form_landscape_rendering(driver, finder):
     """RESPONSIVE: the registration form remains usable (fields reachable) in landscape orientation."""
-    driver.activate_app("com.krishiiq.krishiiq")
     welcome = WelcomePage(driver, finder)
     welcome.go_to_register()
     if not _rotate(driver, "LANDSCAPE"):

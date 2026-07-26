@@ -25,7 +25,6 @@ pytestmark = pytest.mark.notifications
 
 
 def _login(driver, finder):
-    driver.activate_app("com.krishiiq.krishiiq")
     welcome = WelcomePage(driver, finder)
     welcome.go_to_login()
     login = LoginPage(driver, finder)
@@ -78,7 +77,6 @@ def test_notifications_icon_present_for_every_role(driver, finder, role):
     from data.test_data import VALID_OFFICER, VALID_ADMIN
 
     creds = {"farmer": VALID_FARMER, "officer": VALID_OFFICER, "admin": VALID_ADMIN}[role]
-    driver.activate_app("com.krishiiq.krishiiq")
     welcome = WelcomePage(driver, finder)
     welcome.go_to_login()
     LoginPage(driver, finder).login(creds["phone"], creds["password"])

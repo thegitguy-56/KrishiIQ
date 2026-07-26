@@ -17,7 +17,6 @@ pytestmark = pytest.mark.error_handling
 
 
 def _login(driver, finder):
-    driver.activate_app("com.krishiiq.krishiiq")
     welcome = WelcomePage(driver, finder)
     welcome.go_to_login()
     login = LoginPage(driver, finder)
@@ -28,7 +27,6 @@ def _login(driver, finder):
 @pytest.mark.p1
 def test_invalid_credentials_shows_error_message(driver, finder):
     """ERROR: logging in with a wrong password shows 'Invalid username or password' (per login_screen.dart)."""
-    driver.activate_app("com.krishiiq.krishiiq")
     welcome = WelcomePage(driver, finder)
     welcome.go_to_login()
     page = LoginPage(driver, finder)
@@ -40,7 +38,6 @@ def test_invalid_credentials_shows_error_message(driver, finder):
 @pytest.mark.parametrize("flow", ["login", "register", "detect"])
 def test_backend_unreachable_error_surface(driver, finder, flow):
     """ERROR: when the backend is unreachable, each network-dependent flow surfaces a user-facing error instead of hanging silently."""
-    driver.activate_app("com.krishiiq.krishiiq")
     try:
         driver.set_network_connection(0)
     except Exception:
@@ -68,7 +65,6 @@ def test_backend_unreachable_error_surface(driver, finder, flow):
 def test_network_timeout_message_content(driver, finder, flow):
     """ERROR: a connection/timeout failure surfaces the 'Unable to connect to server' style message rather than a raw exception."""
     _login(driver, finder) if flow == "ai_chat" else None
-    driver.activate_app("com.krishiiq.krishiiq")
 
 
 @pytest.mark.p2
@@ -131,7 +127,6 @@ def test_empty_state_no_farms_message(driver, finder, screen):
 @pytest.mark.p3
 def test_error_snackbar_is_dismissable(driver, finder):
     """ERROR: an error SnackBar shown after a failed action can be dismissed and does not block further interaction."""
-    driver.activate_app("com.krishiiq.krishiiq")
     welcome = WelcomePage(driver, finder)
     welcome.go_to_login()
     page = LoginPage(driver, finder)
@@ -144,7 +139,6 @@ def test_error_snackbar_is_dismissable(driver, finder):
 @pytest.mark.parametrize("iteration", range(1, 4))
 def test_repeated_invalid_login_error_stability(driver, finder, iteration):
     """ERROR: repeatedly triggering the invalid-login error path stays stable across attempts (3 iterations)."""
-    driver.activate_app("com.krishiiq.krishiiq")
     welcome = WelcomePage(driver, finder)
     welcome.go_to_login()
     page = LoginPage(driver, finder)
@@ -154,7 +148,6 @@ def test_repeated_invalid_login_error_stability(driver, finder, iteration):
 @pytest.mark.p3
 def test_offline_snackbar_message_on_login(driver, finder):
     """ERROR: attempting login while airplane-mode-equivalent offline shows a Wi-Fi/backend connectivity hint."""
-    driver.activate_app("com.krishiiq.krishiiq")
     try:
         driver.set_network_connection(0)
     except Exception:
