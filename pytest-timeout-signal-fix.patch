@@ -1,0 +1,11 @@
+diff --git a/mobile-tests/pytest.ini b/mobile-tests/pytest.ini
+index 079a622..844834e 100644
+--- a/mobile-tests/pytest.ini
++++ b/mobile-tests/pytest.ini
+@@ -1,5 +1,5 @@
+ [pytest]
+-addopts = -ra --strict-markers --timeout=180 --timeout-method=thread
++addopts = -ra --strict-markers --timeout=180 --timeout-method=signal
+ testpaths = tests
+ python_files = test_*.py
+ python_classes = Test*
