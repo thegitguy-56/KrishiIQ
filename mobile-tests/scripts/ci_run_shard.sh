@@ -48,7 +48,7 @@ if [ "$READY" -ne 1 ]; then
   exit 1
 fi
 
-echo "== Running Appium test suite (shard ${SHARD}/4) =="
+echo "== Running Appium test suite (shard ${SHARD}/8) =="
 cd mobile-tests
 mkdir -p reports/screenshots reports/logs
 export APPIUM_PORT=4723
@@ -57,10 +57,10 @@ export APP_PACKAGE="${APP_PACKAGE}"
 
 set +e
 python3 -m pytest \
-  --reruns 2 --reruns-delay 2 \
+  --reruns 1 --reruns-delay 2 \
   --json-report --json-report-file="reports/execution-results-shard-${SHARD}.json" \
   --junitxml="reports/junit-shard-${SHARD}.xml" \
-  --splits 4 --group "${SHARD}" \
+  --splits 8 --group "${SHARD}" \
   -v 2>&1 | tee "reports/pytest-output-shard-${SHARD}.log"
 TEST_EXIT=${PIPESTATUS[0]}
 set -e
