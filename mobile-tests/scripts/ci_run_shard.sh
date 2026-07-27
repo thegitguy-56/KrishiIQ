@@ -57,7 +57,7 @@ export APP_PACKAGE="${APP_PACKAGE}"
 
 set +e
 python3 -m pytest \
-  --reruns 1 --reruns-delay 2 \
+  --reruns 1 --reruns-delay 2 --rerun-except="Timeout >" \
   --json-report --json-report-file="reports/execution-results-shard-${SHARD}.json" \
   --junitxml="reports/junit-shard-${SHARD}.xml" \
   --splits 8 --group "${SHARD}" \

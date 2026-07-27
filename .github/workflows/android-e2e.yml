@@ -219,8 +219,6 @@ jobs:
           python3 utils/report_generator.py \
             --input reports/execution-results.json \
             --outdir reports
-        continue-on-error: true
-        id: report_gen
 
       - name: Publish GitHub Actions summary
         if: always()
@@ -246,9 +244,3 @@ jobs:
             mobile-tests/reports/shards/**/logs/**
           retention-days: 30
           if-no-files-found: warn
-
-      - name: Fail workflow if pass rate is below 95%
-        if: steps.report_gen.outcome == 'failure'
-        run: |
-          echo "::error::Pass rate is below the required 95% threshold — see Automation_Test_Report.xlsx / summary.md"
-          exit 1
