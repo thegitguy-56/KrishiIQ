@@ -9,12 +9,22 @@ from app.models.farmer import Farmer
 from app.schemas.auth import RegisterRequest
 
 
+def _bcrypt_bytes(password: str) -> bytes:
+    """bcrypt hard-caps input at 72 bytes and raises ValueError past that
+    (see backend-server.log: a login attempt with an over-length password
+    crashed this with an uncaught 500, and the mobile client hung until
+    the Appium timeout because it never got a response). Truncate to the
+    same 72-byte limit bcrypt itself enforces, so long passwords are
+    handled the same way on hash and verify instead of crashing."""
+    return password.encode("utf-8")[:72]
+
+
 def hash_password(password: str) -> str:
-    return bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
+    return bcrypt.hashpw(_bcrypt_bytes(password), bcrypt.gensalt()).decode()
 
 
 def verify_password(plain: str, hashed: str) -> bool:
-    return bcrypt.checkpw(plain.encode(), hashed.encode())
+    return bcrypt.checkpw(_bcrypt_bytes(plain), hashed.encode())
 
 
 def create_access_token(data: dict) -> str:

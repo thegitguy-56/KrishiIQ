@@ -1,4 +1,5 @@
 import os
+import signal
 import time
 import json
 
@@ -114,6 +115,20 @@ def _restart_app_between_tests(driver, request):
 # Page source is deliberately NOT captured here — appium-flutter-driver
 # doesn't implement getPageSource (permanent 405), so calling it on every
 # failure was pure wasted time with an always-empty result.
+#
+# IMPORTANT: pytest-timeout's alarm (method="signal") is armed for the
+# *whole* test item, including this makereport hook that runs right after
+# a failed call. If the driver is already unresponsive (frequently why the
+# test failed in the first place), the 180s alarm can fire WHILE we're
+# blocked inside get_screenshot_as_file()/get_log(). When it fires, the
+# signal handler raises _pytest.outcomes.Failed, which subclasses
+# BaseException (not Exception) — by design, so pytest's own internals
+# never accidentally swallow it. That meant our `except Exception` here
+# never caught it: it propagated straight out of this hookwrapper and
+# crashed the whole session with INTERNALERROR, silently skipping every
+# remaining test in the shard. Fix: disarm the pending alarm before doing
+# any cleanup I/O, and catch BaseException (not just Exception) around
+# each capture step so nothing here can ever take down the session.
 # --------------------------------------------------------------------------- #
 @pytest.hookimpl(hookwrapper=True, tryfirst=True)
 def pytest_runtest_makereport(item, call):
@@ -127,11 +142,20 @@ def pytest_runtest_makereport(item, call):
             return
         safe_name = item.nodeid.replace("/", "_").replace("::", "__")
 
+        # Disarm any pending pytest-timeout SIGALRM so it can't fire in the
+        # middle of the screenshot/logcat HTTP calls below and crash the
+        # session with INTERNALERROR. Safe no-op if no alarm is pending or
+        # on platforms without SIGALRM (e.g. Windows).
+        try:
+            signal.alarm(0)
+        except (AttributeError, ValueError):  # noqa: BLE001
+            pass
+
         try:
             shot_path = os.path.join(settings.SCREENSHOTS_DIR, f"{safe_name}.png")
             driver.get_screenshot_as_file(shot_path)
             log.info("Saved failure screenshot: %s", shot_path)
-        except Exception as exc:  # noqa: BLE001
+        except BaseException as exc:  # noqa: BLE001
             log.warning("Could not capture screenshot for %s: %s", item.nodeid, exc)
 
         try:
@@ -141,7 +165,7 @@ def pytest_runtest_makereport(item, call):
                 for entry in logs[-500:]:
                     fh.write(f"{entry.get('timestamp')} {entry.get('message')}\n")
             log.info("Saved device log: %s", log_path)
-        except Exception as exc:  # noqa: BLE001
+        except BaseException as exc:  # noqa: BLE001
             log.warning("Could not capture logcat for %s: %s", item.nodeid, exc)
 
 
