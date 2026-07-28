@@ -6,7 +6,7 @@ import json
 import pytest
 from appium import webdriver
 from appium.options.android import UiAutomator2Options
-from appium.webdriver.appium_connection import AppiumConnection
+from appium.webdriver.client_config import AppiumClientConfig
 from appium_flutter_finder.flutter_finder import FlutterFinder
 
 from config.capabilities import build_capabilities
@@ -22,15 +22,26 @@ os.makedirs(settings.LOGS_DIR, exist_ok=True)
 # actual, cheap defensive measure: if a command ever wedges (shouldn't
 # happen now that the backend is started before tests run — see
 # android-e2e.yml — but kept as a safety net for genuine one-off hiccups),
-# it fails after this many seconds instead of hanging forever. It does
-# NOT recreate the session — a single failed/timed-out command should
-# just fail that one test (pytest-rerunfailures already retries it), not
-# cost a fresh ~25-30s session bootstrap. A prior version of this file
-# added a per-test health-check-and-recreate wrapper that fired on nearly
-# every test (21-79 recreations per 101-test shard, observed directly in
-# CI logs) and was overwhelmingly the largest cost in the whole run —
-# removed for that reason.
-AppiumConnection.set_timeout(settings.APPIUM_COMMAND_TIMEOUT)
+# it fails after this many seconds instead of hanging forever.
+#
+# NOTE: this used to be `AppiumConnection.set_timeout(...)`, called once
+# at import time. That silently did nothing: RemoteConnection.__init__
+# builds a brand-new ClientConfig (default timeout = socket.getdefaulttimeout(),
+# i.e. None/blocking) every time webdriver.Remote() constructs a session,
+# and overwrites the class attribute set_timeout() had just set — see
+# selenium/webdriver/remote/remote_connection.py, the
+# "RemoteConnection._client_config = self._client_config" line in
+# __init__ (selenium/selenium#14694). Net effect: there was NO client-side
+# timeout at all, so a wedged Appium call blocked until pytest-timeout's
+# 180s alarm fired at the raw socket level instead — confirmed directly
+# via `Failed: Timeout >180.0s` at socket.py:718 in test failures. The fix
+# is to build the ClientConfig ourselves and hand it to webdriver.Remote()
+# explicitly (see _create() below), which is the only way it actually
+# takes effect now.
+_CLIENT_CONFIG = AppiumClientConfig(
+    remote_server_addr=settings.APPIUM_SERVER_URL,
+    timeout=settings.APPIUM_COMMAND_TIMEOUT,
+)
 
 
 # --------------------------------------------------------------------------- #
@@ -52,7 +63,7 @@ class ResilientDriver:
     def _create(self):
         caps = build_capabilities()
         options = UiAutomator2Options().load_capabilities(caps)
-        self._raw = webdriver.Remote(settings.APPIUM_SERVER_URL, options=options)
+        self._raw = webdriver.Remote(settings.APPIUM_SERVER_URL, options=options, client_config=_CLIENT_CONFIG)
         self._raw.implicitly_wait(settings.IMPLICIT_WAIT)
         log.info("Appium session started: %s", self._raw.session_id)
 

@@ -9,7 +9,7 @@ from data.test_data import VALID_FARMER, BOTTOM_NAV_TABS
 from pages.login_page import LoginPage
 from pages.main_shell_page import MainShellPage
 from pages.welcome_page import WelcomePage
-from utils.flutter_helpers import text_visible
+from utils.flutter_helpers import text_visible, key_visible
 
 pytestmark = pytest.mark.navigation
 
@@ -71,7 +71,7 @@ def test_welcome_to_register_navigation(driver, finder):
     """NAV: Welcome screen 'Register' button routes to the registration screen."""
     welcome = WelcomePage(driver, finder)
     welcome.go_to_register()
-    assert text_visible(driver, finder, "Create Account")
+    assert text_visible(driver, finder, "Full Name")
 
 
 @pytest.mark.p2
@@ -83,7 +83,7 @@ def test_profile_to_farm_data_and_back(driver, finder):
 
     ProfilePage(driver, finder).go_to_input_farm_data()
     driver.back()
-    assert text_visible(driver, finder, "Profile")  # bottom-nav label
+    assert key_visible(driver, finder, "nav_profile")  # bottom-nav destination
 
 
 @pytest.mark.p3

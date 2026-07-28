@@ -72,7 +72,7 @@ def test_email_field_format_validation(driver, finder, email, label):
     welcome.go_to_register()
     page = RegisterPage(driver, finder)
     page.register(name="Email Test", email=email, phone="9812345670", password="TestPass1", district="Salem")
-    assert page.current_route_contains("Create Account")
+    assert page.current_route_contains("register")
 
 
 @pytest.mark.p2

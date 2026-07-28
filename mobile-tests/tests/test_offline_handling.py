@@ -13,6 +13,7 @@ from pages.crop_health_page import CropHealthPage
 from pages.ai_chat_page import AiChatPage
 from pages.main_shell_page import MainShellPage
 from pages.welcome_page import WelcomePage
+from utils.adb_helpers import set_network_enabled
 from utils.flutter_helpers import text_visible
 
 pytestmark = pytest.mark.offline
@@ -20,17 +21,22 @@ pytestmark = pytest.mark.offline
 
 def _toggle_offline(driver):
     try:
-        driver.set_network_connection(0)
+        set_network_enabled(False)
         return True
-    except Exception:
+    except Exception as exc:
+        from utils.logger import get_logger
+
+        get_logger(__name__).warning("Could not disable network via adb: %s", exc)
         return False
 
 
 def _toggle_online(driver):
     try:
-        driver.set_network_connection(6)
-    except Exception:
-        pass
+        set_network_enabled(True)
+    except Exception as exc:
+        from utils.logger import get_logger
+
+        get_logger(__name__).warning("Could not re-enable network via adb: %s", exc)
 
 
 def _login(driver, finder):

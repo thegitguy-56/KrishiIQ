@@ -71,13 +71,18 @@ class BasePage:
         time.sleep(seconds)
 
     def is_present(self, element, timeout: int = 5) -> bool:
+        """Uses is_displayed(), not .text — see utils/flutter_helpers.key_visible
+        for why: .text (getText) only resolves for Text/EditableText widgets,
+        and this helper is used generically on arbitrary elements, many of
+        which have no text at all."""
         deadline = time.time() + timeout
         while time.time() < deadline:
             try:
-                element.text  # touching the element proves it resolves
-                return True
+                if element.is_displayed():
+                    return True
             except Exception:  # noqa: BLE001
-                time.sleep(0.5)
+                pass
+            time.sleep(0.5)
         return False
 
     def is_text_present(self, text: str, timeout: float = 5) -> bool:

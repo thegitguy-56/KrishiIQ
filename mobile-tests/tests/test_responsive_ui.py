@@ -10,7 +10,7 @@ from pages.login_page import LoginPage
 from pages.home_page import HomePage
 from pages.main_shell_page import MainShellPage
 from pages.welcome_page import WelcomePage
-from utils.flutter_helpers import text_visible
+from utils.flutter_helpers import text_visible, key_visible
 
 pytestmark = pytest.mark.responsive
 
@@ -108,6 +108,6 @@ def test_bottom_nav_bar_landscape_rendering(driver, finder):
     _login(driver, finder)
     if not _rotate(driver, "LANDSCAPE"):
         pytest.skip("Orientation change not supported on this emulator profile")
-    for label in ["Home", "Advisory", "Sensors", "History", "Profile"]:
-        assert text_visible(driver, finder, label)
+    for label in ["home", "advisory", "sensors", "history", "profile"]:
+        assert key_visible(driver, finder, f"nav_{label}")
     _rotate(driver, "PORTRAIT")

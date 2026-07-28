@@ -5,10 +5,17 @@ class HomePage(BasePage):
     NOTIFICATIONS_BUTTON = "home_notifications_button"
     LOGOUT_BUTTON = "home_logout_button"
     QUICK_ACTIONS = ["Detect Disease", "Advisory", "Irrigation", "AI Assistant", "My Farms"]
+    _QUICK_ACTION_KEYS = {
+        "Detect Disease": "quick_action_detect_disease",
+        "Advisory": "quick_action_advisory",
+        "Irrigation": "quick_action_irrigation",
+        "AI Assistant": "quick_action_ai_assistant",
+        "My Farms": "quick_action_my_farms",
+    }
 
     def open_quick_action(self, label: str):
         assert label in self.QUICK_ACTIONS
-        self.tap(self.by_text(label))
+        self.tap(self.by_key(self._QUICK_ACTION_KEYS[label]))
         self.wait(1)
 
     def tap_notifications(self):

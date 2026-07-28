@@ -9,6 +9,7 @@ from data.test_data import VALID_FARMER, VALID_OFFICER, VALID_ADMIN
 from pages.login_page import LoginPage
 from pages.home_page import HomePage
 from pages.welcome_page import WelcomePage
+from utils.adb_helpers import background_app
 from utils.flutter_helpers import text_visible
 
 pytestmark = pytest.mark.session
@@ -30,9 +31,8 @@ def _login(driver, finder, role="farmer"):
 def test_session_persists_after_app_backgrounding(driver, finder, role):
     """SESSION: backgrounding then foregrounding the app keeps the user logged in."""
     _login(driver, finder, role)
-    driver.background_app(2)
-    driver.wait_activity("*", 5) if hasattr(driver, "wait_activity") else None
-    assert True
+    background_app(2)
+    assert text_visible(driver, finder, "Quick Actions")
 
 
 @pytest.mark.p1
@@ -106,4 +106,5 @@ def test_concurrent_relaunch_after_multiple_backgrounds(driver, finder, role):
     """SESSION: multiple background/foreground cycles in a row keep the session intact for every role."""
     _login(driver, finder, role)
     for _ in range(3):
-        driver.background_app(1)
+        background_app(1)
+    assert text_visible(driver, finder, "Quick Actions")

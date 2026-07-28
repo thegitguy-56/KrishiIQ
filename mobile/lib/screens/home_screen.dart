@@ -91,6 +91,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 childAspectRatio: 1.35,
                 children: [
                   _ActionTile(
+                    key: const ValueKey('quick_action_detect_disease'),
                     icon: Icons.camera_alt_outlined,
                     label: 'Detect Disease',
                     color: const Color(0xFFEF4444),
@@ -103,24 +104,28 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   //   onTap: () => context.push('/soil-data'),
                   // ),
                   _ActionTile(
+                    key: const ValueKey('quick_action_advisory'),
                     icon: Icons.record_voice_over_outlined,
                     label: 'Advisory',
                     color: const Color(0xFF16A34A),
                     onTap: () => context.push('/advisory'),
                   ),
                   _ActionTile(
+                    key: const ValueKey('quick_action_irrigation'),
                     icon: Icons.schedule_outlined,
                     label: 'Irrigation',
                     color: const Color(0xFFD97706),
                     onTap: () => context.push('/irrigation'),
                   ),
                   _ActionTile(
+                    key: const ValueKey('quick_action_ai_assistant'),
                     icon: Icons.smart_toy_outlined,
                     label: 'AI Assistant',
                     color: const Color(0xFF7C3AED),
                     onTap: () => context.push('/ai-chat'),
                   ),
                   _ActionTile(
+                    key: const ValueKey('quick_action_my_farms'),
                     icon: Icons.map_outlined,
                     label: 'My Farms',
                     color: const Color(0xFF0891B2),
@@ -178,6 +183,7 @@ class _ActionTile extends StatelessWidget {
   final VoidCallback onTap;
 
   const _ActionTile({
+    super.key,
     required this.icon,
     required this.label,
     required this.color,

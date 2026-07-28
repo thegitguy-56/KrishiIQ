@@ -87,7 +87,7 @@ def test_login_navigate_to_register(driver, finder):
     """AUTH: 'New farmer? Register here' link navigates to the registration screen."""
     page = _open_login(driver, finder)
     page.go_to_register()
-    assert page.current_route_contains("Create Account") or page.current_route_contains("register")
+    assert page.current_route_contains("register")
 
 
 @pytest.mark.p1
@@ -107,7 +107,7 @@ def test_valid_registration(driver, finder, locale):
         password="TestPass123",
         district="Coimbatore",
     )
-    assert not page.current_route_contains("Create Account") or True  # farm-setup or error banner
+    assert not page.current_route_contains("register") or True  # farm-setup or error banner
 
 
 @pytest.mark.p2
@@ -118,7 +118,7 @@ def test_register_invalid_email(driver, finder, email, label):
     welcome.go_to_register()
     page = RegisterPage(driver, finder)
     page.register(name="QA Test", email=email, phone="9123456780", password="TestPass123", district="Chennai")
-    assert page.current_route_contains("Create Account")
+    assert page.current_route_contains("register")
 
 
 @pytest.mark.p2
@@ -128,4 +128,4 @@ def test_register_password_below_minimum(driver, finder):
     welcome.go_to_register()
     page = RegisterPage(driver, finder)
     page.register(name="QA Test", email="qa@example.com", phone="9123456781", password="123", district="Chennai")
-    assert page.current_route_contains("Create Account")
+    assert page.current_route_contains("register")
