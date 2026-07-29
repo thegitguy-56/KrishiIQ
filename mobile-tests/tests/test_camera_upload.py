@@ -10,8 +10,30 @@ from pages.login_page import LoginPage
 from pages.crop_health_page import CropHealthPage
 from pages.welcome_page import WelcomePage
 from utils.flutter_helpers import text_visible
+from utils.adb_helpers import set_network_enabled
 
 pytestmark = pytest.mark.camera
+
+
+def _toggle_offline(driver):
+    """adb-based toggle — driver.set_network_connection() maps to the
+    UiAutomator2/Espresso "mobile: networkConnection" extension, which the
+    Flutter automation engine this suite runs under does not implement
+    (see utils/adb_helpers.py); every call returned HTTP 500 from the
+    Appium server. Use the adb path instead, same as
+    tests/test_offline_handling.py."""
+    try:
+        set_network_enabled(False)
+        return True
+    except Exception:
+        return False
+
+
+def _toggle_online(driver):
+    try:
+        set_network_enabled(True)
+    except Exception:
+        pass
 
 
 def _open_crop_health(driver, finder):
@@ -104,17 +126,12 @@ def test_detect_under_network_conditions(driver, finder, network):
     """CAMERA: detect action surfaces an appropriate result/error under online vs offline network conditions."""
     page = _open_crop_health(driver, finder)
     if network == "offline":
-        try:
-            driver.set_network_connection(0)
-        except Exception:
+        if not _toggle_offline(driver):
             pytest.skip("Network toggling not supported on this emulator profile")
     page.select_farm()
     page.upload_and_detect(source="gallery")
     if network == "offline":
-        try:
-            driver.set_network_connection(6)
-        except Exception:
-            pass
+        _toggle_online(driver)
 
 
 @pytest.mark.p3
@@ -178,4 +195,3 @@ def test_placeholder_hint_visible_before_upload(driver, finder):
     """CAMERA: the 'Tap to capture or upload crop image' hint is visible before any image is chosen."""
     page = _open_crop_health(driver, finder)
     assert text_visible(driver, finder, "Tap to capture or upload crop image")
-

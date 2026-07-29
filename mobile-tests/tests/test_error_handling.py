@@ -12,6 +12,7 @@ from pages.home_page import HomePage
 from pages.crop_health_page import CropHealthPage
 from pages.main_shell_page import MainShellPage
 from pages.welcome_page import WelcomePage
+from utils.adb_helpers import set_network_enabled
 
 pytestmark = pytest.mark.error_handling
 
@@ -22,6 +23,27 @@ def _login(driver, finder):
     login = LoginPage(driver, finder)
     login.login(VALID_FARMER["phone"], VALID_FARMER["password"])
     login.wait(1.5)
+
+
+def _toggle_offline(driver):
+    """adb-based connectivity toggle. driver.set_network_connection() maps
+    to the UiAutomator2/Espresso "mobile: networkConnection" extension,
+    which the Flutter automation engine this suite runs under does not
+    implement (see utils/adb_helpers.py) — every call returned HTTP 500
+    from the Appium server. Use the adb path instead, same as
+    tests/test_offline_handling.py."""
+    try:
+        set_network_enabled(False)
+        return True
+    except Exception:
+        return False
+
+
+def _toggle_online(driver):
+    try:
+        set_network_enabled(True)
+    except Exception:
+        pass
 
 
 @pytest.mark.p1
@@ -38,9 +60,7 @@ def test_invalid_credentials_shows_error_message(driver, finder):
 @pytest.mark.parametrize("flow", ["login", "register", "detect"])
 def test_backend_unreachable_error_surface(driver, finder, flow):
     """ERROR: when the backend is unreachable, each network-dependent flow surfaces a user-facing error instead of hanging silently."""
-    try:
-        driver.set_network_connection(0)
-    except Exception:
+    if not _toggle_offline(driver):
         pytest.skip("Network toggling not supported on this emulator profile")
     welcome = WelcomePage(driver, finder)
     if flow == "login":
@@ -54,10 +74,7 @@ def test_backend_unreachable_error_surface(driver, finder, flow):
     else:
         welcome.go_to_login()
         LoginPage(driver, finder).login(VALID_FARMER["phone"], VALID_FARMER["password"])
-    try:
-        driver.set_network_connection(6)
-    except Exception:
-        pass
+    _toggle_online(driver)
 
 
 @pytest.mark.p2
@@ -148,17 +165,12 @@ def test_repeated_invalid_login_error_stability(driver, finder, iteration):
 @pytest.mark.p3
 def test_offline_snackbar_message_on_login(driver, finder):
     """ERROR: attempting login while airplane-mode-equivalent offline shows a Wi-Fi/backend connectivity hint."""
-    try:
-        driver.set_network_connection(0)
-    except Exception:
+    if not _toggle_offline(driver):
         pytest.skip("Network toggling not supported on this emulator profile")
     welcome = WelcomePage(driver, finder)
     welcome.go_to_login()
     LoginPage(driver, finder).login(VALID_FARMER["phone"], VALID_FARMER["password"])
-    try:
-        driver.set_network_connection(6)
-    except Exception:
-        pass
+    _toggle_online(driver)
 
 
 @pytest.mark.p3
