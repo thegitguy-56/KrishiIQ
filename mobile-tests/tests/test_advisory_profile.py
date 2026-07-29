@@ -11,6 +11,7 @@ from pages.advisory_page import AdvisoryPage, ProfilePage
 from pages.main_shell_page import MainShellPage
 from pages.welcome_page import WelcomePage
 from utils.flutter_helpers import text_visible
+from utils.adb_helpers import scroll_down
 
 pytestmark = pytest.mark.advisory_profile
 
@@ -109,6 +110,6 @@ def test_advisory_feed_scroll_stability(driver, finder, cycle):
     shell.go_advisory()
     page = AdvisoryPage(driver, finder)
     try:
-        driver.execute_script("mobile: scrollGesture", {"direction": "down", "percent": 0.6})
+        scroll_down(percent=0.6)
     except Exception:
         pass

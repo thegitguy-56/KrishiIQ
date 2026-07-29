@@ -1,4 +1,5 @@
 from pages.base_page import BasePage
+from utils.adb_helpers import scroll_down
 
 
 class HomePage(BasePage):
@@ -33,9 +34,6 @@ class HomePage(BasePage):
 
     def pull_to_refresh(self):
         try:
-            self.driver.execute_script(
-                "mobile: scrollGesture",
-                {"direction": "down", "percent": 1.0},
-            )
+            scroll_down(percent=1.0)
         except Exception:  # noqa: BLE001
             pass
