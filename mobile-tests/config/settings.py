@@ -31,12 +31,21 @@ class Settings:
     # Applied as the Python-process-wide default socket timeout (see
     # conftest.py). Bounds every Appium HTTP call, including the
     # FlutterDriver/Observatory ones that have been observed to hang
-    # indefinitely with no error and no timeout of their own. Kept well
-    # under the per-test pytest --timeout (180s) so a wedged call fails
-    # fast enough for the health-check/session-recreate logic to react,
-    # and well above the slowest legitimate wait in the suite
-    # (EXPLICIT_WAIT=20s) so it never trips on real, if slow, operations.
-    APPIUM_COMMAND_TIMEOUT = int(os.getenv("APPIUM_COMMAND_TIMEOUT", "45"))
+    # indefinitely with no error and no timeout of their own.
+    #
+    # Was 45s, based on an EXPLICIT_WAIT=20s "slowest legitimate wait"
+    # that turned out to be dead config — nothing in this suite actually
+    # blocks on it. Measured from a real CI run instead: appium-server.log
+    # from one timed-out shard (2h wall clock, killed by the job timeout)
+    # showed 113 of these calls hanging the full 45s before failing —
+    # ~85 of the shard's 114 total minutes, i.e. most of the run was pure
+    # dead waiting on calls that were always going to fail, not doing
+    # test work. Every *legitimate* call observed in healthy logs
+    # completes in well under a second, with the slowest being ~3.9s
+    # (activate_app's Observatory reconnect). 12s keeps ~3x headroom over
+    # that while cutting the wasted-call cost ~4x (45s -> 12s), so the
+    # same 113 stuck calls cost ~23 minutes instead of ~85.
+    APPIUM_COMMAND_TIMEOUT = int(os.getenv("APPIUM_COMMAND_TIMEOUT", "12"))
 
     # Seeded/test backend credentials (mirrors selenium-tests.yml conventions)
     FARMER_PHONE = os.getenv("FARMER_PHONE", "9000000002")
