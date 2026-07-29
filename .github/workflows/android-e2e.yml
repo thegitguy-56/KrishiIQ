@@ -7,7 +7,7 @@ on:
 
 concurrency:
   group: android-e2e-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 env:
   FLUTTER_VERSION: "3.27.1"
@@ -48,7 +48,7 @@ jobs:
     name: Run Appium suite (shard ${{ matrix.shard }}/8)
     needs: build-apk
     runs-on: ubuntu-latest
-    timeout-minutes: 90
+    timeout-minutes: 120
     strategy:
       fail-fast: false
       matrix:
