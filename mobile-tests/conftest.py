@@ -6,7 +6,7 @@ import json
 import pytest
 from appium import webdriver
 from appium.options.android import UiAutomator2Options
-from appium.webdriver.client_config import AppiumClientConfig
+from appium.webdriver.appium_connection import AppiumConnection
 from appium_flutter_finder.flutter_finder import FlutterFinder
 
 from config.capabilities import build_capabilities
@@ -18,30 +18,24 @@ log = get_logger(__name__)
 os.makedirs(settings.SCREENSHOTS_DIR, exist_ok=True)
 os.makedirs(settings.LOGS_DIR, exist_ok=True)
 
-# Client-side HTTP timeout for every Appium/Selenium request. This is the
-# actual, cheap defensive measure: if a command ever wedges (shouldn't
-# happen now that the backend is started before tests run — see
-# android-e2e.yml — but kept as a safety net for genuine one-off hiccups),
-# it fails after this many seconds instead of hanging forever.
+# Client-side HTTP timeout for every Appium/Selenium request, so a wedged
+# command fails after this many seconds instead of hanging until
+# pytest-timeout's 180s alarm fires at the raw socket level.
 #
-# NOTE: this used to be `AppiumConnection.set_timeout(...)`, called once
-# at import time. That silently did nothing: RemoteConnection.__init__
-# builds a brand-new ClientConfig (default timeout = socket.getdefaulttimeout(),
-# i.e. None/blocking) every time webdriver.Remote() constructs a session,
-# and overwrites the class attribute set_timeout() had just set — see
-# selenium/webdriver/remote/remote_connection.py, the
-# "RemoteConnection._client_config = self._client_config" line in
-# __init__ (selenium/selenium#14694). Net effect: there was NO client-side
-# timeout at all, so a wedged Appium call blocked until pytest-timeout's
-# 180s alarm fired at the raw socket level instead — confirmed directly
-# via `Failed: Timeout >180.0s` at socket.py:718 in test failures. The fix
-# is to build the ClientConfig ourselves and hand it to webdriver.Remote()
-# explicitly (see _create() below), which is the only way it actually
-# takes effect now.
-_CLIENT_CONFIG = AppiumClientConfig(
-    remote_server_addr=settings.APPIUM_SERVER_URL,
-    timeout=settings.APPIUM_COMMAND_TIMEOUT,
-)
+# This IS the correct mechanism for this project's pinned dependencies
+# (Appium-Python-Client==3.1.1, selenium==4.21.0 — see requirements.txt):
+# in selenium 4.21.0, RemoteConnection._timeout is a plain class attribute
+# and set_timeout()/get_timeout() just read/write it directly; nothing in
+# __init__ overwrites it. AppiumConnection._get_connection_manager() reads
+# get_timeout() when it lazily builds the urllib3 pool manager, so calling
+# this once at import time, before any driver session exists, is
+# sufficient. (A prior version of this comment claimed set_timeout() was
+# silently discarded and switched to AppiumClientConfig — that diagnosis
+# was checked against the *latest* Appium-Python-Client, not the pinned
+# 3.1.1, where AppiumClientConfig doesn't exist at all. That change broke
+# conftest.py collection outright: ImportError -> 0 tests collected in
+# every shard. Reverted.)
+AppiumConnection.set_timeout(settings.APPIUM_COMMAND_TIMEOUT)
 
 
 # --------------------------------------------------------------------------- #
@@ -63,7 +57,7 @@ class ResilientDriver:
     def _create(self):
         caps = build_capabilities()
         options = UiAutomator2Options().load_capabilities(caps)
-        self._raw = webdriver.Remote(settings.APPIUM_SERVER_URL, options=options, client_config=_CLIENT_CONFIG)
+        self._raw = webdriver.Remote(settings.APPIUM_SERVER_URL, options=options)
         self._raw.implicitly_wait(settings.IMPLICIT_WAIT)
         log.info("Appium session started: %s", self._raw.session_id)
 
