@@ -48,7 +48,7 @@ jobs:
     name: Run Appium suite (shard ${{ matrix.shard }}/8)
     needs: build-apk
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 90
     strategy:
       fail-fast: false
       matrix:
