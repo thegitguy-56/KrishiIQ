@@ -1,0 +1,192 @@
+2026-07-30 01:41:59:806 [Appium] Welcome to Appium v3.6.0
+2026-07-30 01:41:59:808 [Appium] Non-default server args:
+2026-07-30 01:41:59:811 [Appium] { basePath: '/wd/hub', loglevel: 'info' }
+2026-07-30 01:41:59:812 [Appium] Attempting to load driver flutter...
+2026-07-30 01:42:08:566 [Appium] Appium REST http interface listener started on http://0.0.0.0:4723/wd/hub
+2026-07-30 01:42:08:567 [Appium] You can provide the following URLs in your client code to connect to this server:
+	http://127.0.0.1:4723/wd/hub (only accessible from the same host)
+	http://10.1.0.91:4723/wd/hub
+2026-07-30 01:42:08:568 [Appium] Available drivers:
+2026-07-30 01:42:08:568 [Appium]   - flutter@3.9.1 (automationName 'Flutter')
+2026-07-30 01:42:08:568 [Appium] No plugins have been installed. Use the "appium plugin" command to install the one(s) you want to use.
+2026-07-30 01:42:09:263 [HTTP] --> GET /wd/hub/status 
+2026-07-30 01:42:09:270 [HTTP] <-- GET /wd/hub/status 200 6 ms - 110
+2026-07-30 01:42:16:228 [HTTP] --> POST /wd/hub/session {"capabilities":{"firstMatch":[{}],"alwaysMatch":{"appium:automationName":"Flutter","platformName":"Android","appium:platformVersion":"13","appium:deviceName":"emulator-5554","appium:app":"/home/runner/work/KrishiIQ/KrishiIQ/mobile/build/app/outputs/flutter-apk/app-debug.apk","appium:appPackage":"com.krishiiq.krishiiq","appium:appActivity":".MainActivity","appium:newCommandTimeout":120,"appium:autoGrantPermissions":true,"appium:noReset":false,"appium:fullReset":false}}}
+2026-07-30 01:42:16:231 [Appium] Attempting to find matching driver for automationName 'Flutter' and platformName 'Android'
+2026-07-30 01:42:16:232 [Appium] The 'flutter' driver was installed and matched caps.
+2026-07-30 01:42:16:232 [Appium] Will require it at /home/runner/.appium/node_modules/appium-flutter-driver
+2026-07-30 01:42:16:234 [AppiumDriver@afc4] Appium v3.6.0 creating new FlutterDriver (v3.9.1) session
+2026-07-30 01:42:16:234 [AppiumDriver@afc4] Checking BaseDriver versions for Appium and FlutterDriver
+2026-07-30 01:42:16:234 [AppiumDriver@afc4] Appium's BaseDriver version is 10.7.2
+2026-07-30 01:42:16:234 [AppiumDriver@afc4] FlutterDriver's BaseDriver version is 10.7.2
+2026-07-30 01:42:16:237 [FlutterDriver@ddb2] The following provided capabilities were not recognized by this driver:
+2026-07-30 01:42:16:237 [FlutterDriver@ddb2]   deviceName
+2026-07-30 01:42:16:237 [FlutterDriver@ddb2]   appPackage
+2026-07-30 01:42:16:238 [FlutterDriver@ddb2]   appActivity
+2026-07-30 01:42:16:238 [FlutterDriver@ddb2]   autoGrantPermissions
+2026-07-30 01:42:16:238 [724d2dfd][FlutterDriver@ddb2] Session created with session id: 724d2dfd-5bb0-45d1-bb71-d1770ab1eb1a
+2026-07-30 01:42:16:239 [724d2dfd][FlutterDriver@ddb2] Starting an Android proxy session
+2026-07-30 01:42:18:214 [e0083531][38;5;-154m[AndroidUiautomator2Driver@2a39] Session created with session id: e0083531-5ba0-459d-ad0d-6558f461bf37
+2026-07-30 01:42:18:259 [e0083531][ADB] Found 6 'build-tools' folders under '/usr/local/lib/android/sdk' (newest first):
+2026-07-30 01:42:18:259 [e0083531][ADB]     /usr/local/lib/android/sdk/build-tools/37.0.0
+2026-07-30 01:42:18:259 [e0083531][ADB]     /usr/local/lib/android/sdk/build-tools/36.1.0
+2026-07-30 01:42:18:259 [e0083531][ADB]     /usr/local/lib/android/sdk/build-tools/36.0.0
+2026-07-30 01:42:18:259 [e0083531][ADB]     /usr/local/lib/android/sdk/build-tools/35.0.1
+2026-07-30 01:42:18:260 [e0083531][ADB]     /usr/local/lib/android/sdk/build-tools/35.0.0
+2026-07-30 01:42:18:260 [e0083531][ADB]     /usr/local/lib/android/sdk/build-tools/34.0.0
+2026-07-30 01:42:18:271 [e0083531][ADB] Using 'adb' from '/usr/local/lib/android/sdk/platform-tools/adb'
+2026-07-30 01:42:18:286 [e0083531][38;5;-154m[AndroidUiautomator2Driver@2a39] Retrieving device list
+2026-07-30 01:42:18:294 [e0083531][38;5;-154m[AndroidUiautomator2Driver@2a39] Looking for a device with Android '13.0.0'
+2026-07-30 01:42:18:295 [e0083531][ADB] Getting device platform version
+2026-07-30 01:42:18:346 [e0083531][38;5;-154m[AndroidUiautomator2Driver@2a39] Using device: emulator-5554
+2026-07-30 01:42:18:348 [e0083531][BaseDriver] Subscribing 2a39ef94-57af-4a5d-8c1e-f35e804da384 to topic 'uiautomator2:sessionUdidClaimed'
+2026-07-30 01:42:18:349 [e0083531][BaseDriver] Subscribing 2a39ef94-57af-4a5d-8c1e-f35e804da384 to topic 'uiautomator2:sessionUdidContended'
+2026-07-30 01:42:18:349 [e0083531][BaseDriver] Subscribing 2a39ef94-57af-4a5d-8c1e-f35e804da384 to topic 'uiautomator2:sessionUdidReleased'
+2026-07-30 01:42:18:361 [e0083531][BaseDriver] Unsubscribing 2a39ef94-57af-4a5d-8c1e-f35e804da384 from topic 'uiautomator2:sessionUdidContended'
+2026-07-30 01:42:18:362 [e0083531][BaseDriver] Unsubscribing 2a39ef94-57af-4a5d-8c1e-f35e804da384 from topic 'uiautomator2:sessionUdidReleased'
+2026-07-30 01:42:18:363 [e0083531][ADB] Using 'adb' from '/usr/local/lib/android/sdk/platform-tools/adb'
+2026-07-30 01:42:18:372 [e0083531][BaseDriver] Using local app '/home/runner/work/KrishiIQ/KrishiIQ/mobile/build/app/outputs/flutter-apk/app-debug.apk'
+2026-07-30 01:42:18:862 [e0083531][ADB] Getting device platform version
+2026-07-30 01:42:18:890 [e0083531][38;5;-154m[AndroidUiautomator2Driver@2a39] Relaxing hidden api policy
+2026-07-30 01:42:20:256 [e0083531][ADB] The installation of 'settings_apk-debug.apk' took 1215ms
+2026-07-30 01:42:23:380 [e0083531][38;5;-154m[AndroidUiautomator2Driver@2a39] Server packages are going to be (re)installed
+2026-07-30 01:42:24:195 [e0083531][ADB] Using 'apksigner.jar' from '/usr/local/lib/android/sdk/build-tools/37.0.0/lib/apksigner.jar'
+2026-07-30 01:42:24:803 [e0083531][ADB] The installation of 'appium-uiautomator2-server-debug-androidTest.apk' took 1374ms
+2026-07-30 01:42:25:469 [e0083531][ADB] '/home/runner/work/KrishiIQ/KrishiIQ/mobile/build/app/outputs/flutter-apk/app-debug.apk' is signed with a non-default certificate
+2026-07-30 01:42:25:554 [e0083531][ADB] Using 'aapt2' from '/usr/local/lib/android/sdk/build-tools/37.0.0/aapt2'
+2026-07-30 01:42:25:724 [e0083531][38;5;-154m[AndroidUiautomator2Driver@2a39] Performing fast reset on 'com.krishiiq.krishiiq'
+2026-07-30 01:42:25:955 [e0083531][ADB] The installation of 'appium-uiautomator2-server-v10.3.3.apk' took 2530ms
+2026-07-30 01:42:25:990 [e0083531][ADB] Adding packages ["io.appium.settings","io.appium.uiautomator2.server","io.appium.uiautomator2.server.test"] to Doze whitelist
+2026-07-30 01:42:26:389 [e0083531][38;5;-154m[AndroidUiautomator2Driver@2a39] Starting UIAutomator2 server 10.3.3
+2026-07-30 01:42:26:389 [e0083531][38;5;-154m[AndroidUiautomator2Driver@2a39] Using UIAutomator2 server from '/home/runner/.appium/node_modules/appium-flutter-driver/node_modules/appium-uiautomator2-driver/node_modules/appium-uiautomator2-server/apks/appium-uiautomator2-server-v10.3.3.apk' and test from '/home/runner/.appium/node_modules/appium-flutter-driver/node_modules/appium-uiautomator2-driver/node_modules/appium-uiautomator2-server/apks/appium-uiautomator2-server-debug-androidTest.apk'
+2026-07-30 01:42:26:389 [e0083531][38;5;-154m[AndroidUiautomator2Driver@2a39] Waiting up to 30000ms for UiAutomator2 to be online...
+2026-07-30 01:42:26:406 [e0083531][38;5;-154m[AndroidUiautomator2Driver@2a39] socket hang up
+2026-07-30 01:42:27:426 [e0083531][38;5;-154m[AndroidUiautomator2Driver@2a39] socket hang up
+2026-07-30 01:42:28:222 [HTTP] <-- POST /wd/hub/session - - ms - -
+2026-07-30 01:42:28:433 [e0083531][38;5;-154m[AndroidUiautomator2Driver@2a39] socket hang up
+2026-07-30 01:42:29:438 [e0083531][38;5;-154m[AndroidUiautomator2Driver@2a39] socket hang up
+2026-07-30 01:42:30:582 [e0083531][38;5;-154m[AndroidUiautomator2Driver@2a39] Determined the downstream protocol as 'W3C'
+2026-07-30 01:42:30:723 [e0083531][38;5;-154m[AndroidUiautomator2Driver@2a39] Screen already unlocked, doing nothing
+2026-07-30 01:42:30:723 [e0083531][38;5;-154m[AndroidUiautomator2Driver@2a39] Starting 'com.krishiiq.krishiiq/.MainActivityand waiting for 'com.krishiiq.krishiiq/.MainActivity'
+2026-07-30 01:42:33:228 [HTTP] --> POST /wd/hub/session {"capabilities":{"firstMatch":[{}],"alwaysMatch":{"appium:automationName":"Flutter","platformName":"Android","appium:platformVersion":"13","appium:deviceName":"emulator-5554","appium:app":"/home/runner/work/KrishiIQ/KrishiIQ/mobile/build/app/outputs/flutter-apk/app-debug.apk","appium:appPackage":"com.krishiiq.krishiiq","appium:appActivity":".MainActivity","appium:newCommandTimeout":120,"appium:autoGrantPermissions":true,"appium:noReset":false,"appium:fullReset":false}}}
+2026-07-30 01:42:33:230 [Appium] Attempting to find matching driver for automationName 'Flutter' and platformName 'Android'
+2026-07-30 01:42:33:231 [Appium] The 'flutter' driver was installed and matched caps.
+2026-07-30 01:42:33:231 [Appium] Will require it at /home/runner/.appium/node_modules/appium-flutter-driver
+2026-07-30 01:42:33:232 [AppiumDriver@afc4] Appium v3.6.0 creating new FlutterDriver (v3.9.1) session
+2026-07-30 01:42:33:233 [AppiumDriver@afc4] Checking BaseDriver versions for Appium and FlutterDriver
+2026-07-30 01:42:33:233 [AppiumDriver@afc4] Appium's BaseDriver version is 10.7.2
+2026-07-30 01:42:33:233 [AppiumDriver@afc4] FlutterDriver's BaseDriver version is 10.7.2
+2026-07-30 01:42:33:235 [FlutterDriver@93a6] The following provided capabilities were not recognized by this driver:
+2026-07-30 01:42:33:236 [FlutterDriver@93a6]   deviceName
+2026-07-30 01:42:33:236 [FlutterDriver@93a6]   appPackage
+2026-07-30 01:42:33:236 [FlutterDriver@93a6]   appActivity
+2026-07-30 01:42:33:237 [FlutterDriver@93a6]   autoGrantPermissions
+2026-07-30 01:42:33:238 [a533b4b1][FlutterDriver@93a6] Session created with session id: a533b4b1-d030-4efa-bdf3-338dada3a038
+2026-07-30 01:42:33:238 [a533b4b1][FlutterDriver@93a6] Starting an Android proxy session
+2026-07-30 01:42:33:241 [7b656d1f][38;5;-12m[AndroidUiautomator2Driver@d9a9] Session created with session id: 7b656d1f-b026-4fcb-8a4b-1054cc22f291
+2026-07-30 01:42:33:242 [7b656d1f][ADB] Using 'adb' from '/usr/local/lib/android/sdk/platform-tools/adb'
+2026-07-30 01:42:33:248 [7b656d1f][38;5;-12m[AndroidUiautomator2Driver@d9a9] Retrieving device list
+2026-07-30 01:42:33:253 [7b656d1f][38;5;-12m[AndroidUiautomator2Driver@d9a9] Looking for a device with Android '13.0.0'
+2026-07-30 01:42:33:253 [7b656d1f][ADB] Getting device platform version
+2026-07-30 01:42:33:295 [7b656d1f][38;5;-12m[AndroidUiautomator2Driver@d9a9] Using device: emulator-5554
+2026-07-30 01:42:33:296 [7b656d1f][BaseDriver] Subscribing d9a938a7-3334-48c8-9d56-c500de6b0a76 to topic 'uiautomator2:sessionUdidClaimed'
+2026-07-30 01:42:33:296 [7b656d1f][BaseDriver] Subscribing d9a938a7-3334-48c8-9d56-c500de6b0a76 to topic 'uiautomator2:sessionUdidContended'
+2026-07-30 01:42:33:296 [7b656d1f][BaseDriver] Subscribing d9a938a7-3334-48c8-9d56-c500de6b0a76 to topic 'uiautomator2:sessionUdidReleased'
+2026-07-30 01:42:33:299 [7b656d1f][38;5;-154m[AndroidUiautomator2Driver@2a39] Session '7b656d1f-b026-4fcb-8a4b-1054cc22f291' is starting on udid 'emulator-5554', which is already in use by another session identified by e0083531-5ba0-459d-ad0d-6558f461bf37. Running multiple parallel sessions on the same device is highly discouraged. Consider enabling the Appium server's '--session-override' flag and make sure to properly quit the previous session before starting a new one. Terminating the obsolete session.
+2026-07-30 01:42:33:299 [7b656d1f][BaseDriver] Unsubscribing 2a39ef94-57af-4a5d-8c1e-f35e804da384 from topic 'uiautomator2:sessionUdidClaimed'
+2026-07-30 01:42:34:074 [7b656d1f][38;5;-154m[AndroidUiautomator2Driver@2a39] Restoring hidden api policy to the device default configuration
+2026-07-30 01:42:34:667 [7b656d1f][BaseDriver] Unsubscribing d9a938a7-3334-48c8-9d56-c500de6b0a76 from topic 'uiautomator2:sessionUdidContended'
+2026-07-30 01:42:34:667 [7b656d1f][BaseDriver] Unsubscribing d9a938a7-3334-48c8-9d56-c500de6b0a76 from topic 'uiautomator2:sessionUdidReleased'
+2026-07-30 01:42:34:669 [7b656d1f][ADB] Using 'adb' from '/usr/local/lib/android/sdk/platform-tools/adb'
+2026-07-30 01:42:34:676 [7b656d1f][BaseDriver] Using local app '/home/runner/work/KrishiIQ/KrishiIQ/mobile/build/app/outputs/flutter-apk/app-debug.apk'
+2026-07-30 01:42:35:223 [7b656d1f][ADB] Getting device platform version
+2026-07-30 01:42:35:244 [7b656d1f][38;5;-12m[AndroidUiautomator2Driver@d9a9] Relaxing hidden api policy
+2026-07-30 01:42:35:423 [7b656d1f][ADB] Using 'aapt2' from '/usr/local/lib/android/sdk/build-tools/37.0.0/aapt2'
+2026-07-30 01:42:35:721 [7b656d1f][38;5;-12m[AndroidUiautomator2Driver@d9a9] Server packages are not going to be (re)installed
+2026-07-30 01:42:35:817 [7b656d1f][ADB] Adding packages ["io.appium.settings","io.appium.uiautomator2.server","io.appium.uiautomator2.server.test"] to Doze whitelist
+2026-07-30 01:42:36:197 [7b656d1f][38;5;-12m[AndroidUiautomator2Driver@d9a9] Performing fast reset on 'com.krishiiq.krishiiq'
+2026-07-30 01:42:36:980 [7b656d1f][38;5;-12m[AndroidUiautomator2Driver@d9a9] Starting UIAutomator2 server 10.3.3
+2026-07-30 01:42:36:980 [7b656d1f][38;5;-12m[AndroidUiautomator2Driver@d9a9] Using UIAutomator2 server from '/home/runner/.appium/node_modules/appium-flutter-driver/node_modules/appium-uiautomator2-driver/node_modules/appium-uiautomator2-server/apks/appium-uiautomator2-server-v10.3.3.apk' and test from '/home/runner/.appium/node_modules/appium-flutter-driver/node_modules/appium-uiautomator2-driver/node_modules/appium-uiautomator2-server/apks/appium-uiautomator2-server-debug-androidTest.apk'
+2026-07-30 01:42:36:980 [7b656d1f][38;5;-12m[AndroidUiautomator2Driver@d9a9] Waiting up to 30000ms for UiAutomator2 to be online...
+2026-07-30 01:42:36:992 [7b656d1f][38;5;-12m[AndroidUiautomator2Driver@d9a9] socket hang up
+2026-07-30 01:42:37:997 [7b656d1f][38;5;-12m[AndroidUiautomator2Driver@d9a9] socket hang up
+2026-07-30 01:42:39:004 [7b656d1f][38;5;-12m[AndroidUiautomator2Driver@d9a9] socket hang up
+2026-07-30 01:42:40:113 [7b656d1f][38;5;-12m[AndroidUiautomator2Driver@d9a9] Determined the downstream protocol as 'W3C'
+2026-07-30 01:42:40:285 [7b656d1f][38;5;-12m[AndroidUiautomator2Driver@d9a9] Screen already unlocked, doing nothing
+2026-07-30 01:42:40:285 [7b656d1f][38;5;-12m[AndroidUiautomator2Driver@d9a9] Starting 'com.krishiiq.krishiiq/.MainActivityand waiting for 'com.krishiiq.krishiiq/.MainActivity'
+2026-07-30 01:42:45:227 [HTTP] <-- POST /wd/hub/session - - ms - -
+2026-07-30 01:42:47:203 [7b656d1f][FlutterDriver@93a6] Connecting to Dart Observatory: ws://127.0.0.1:43341/dtpKITEWuww=/ws
+2026-07-30 01:42:47:572 [7b656d1f][FlutterDriver@93a6] Listing all isolates: [{"type":"@Isolate","id":"isolates/4667356264917503","name":"main","number":"4667356264917503","isSystemIsolate":false,"isolateGroupId":"isolateGroups/1369911364096509"}]
+2026-07-30 01:42:47:669 [7b656d1f][AppiumDriver@afc4] New FlutterDriver session created successfully, session a533b4b1-d030-4efa-bdf3-338dada3a038 added to master session list
+2026-07-30 01:42:50:232 [HTTP] --> POST /wd/hub/session {"capabilities":{"firstMatch":[{}],"alwaysMatch":{"appium:automationName":"Flutter","platformName":"Android","appium:platformVersion":"13","appium:deviceName":"emulator-5554","appium:app":"/home/runner/work/KrishiIQ/KrishiIQ/mobile/build/app/outputs/flutter-apk/app-debug.apk","appium:appPackage":"com.krishiiq.krishiiq","appium:appActivity":".MainActivity","appium:newCommandTimeout":120,"appium:autoGrantPermissions":true,"appium:noReset":false,"appium:fullReset":false}}}
+2026-07-30 01:42:50:234 [Appium] Attempting to find matching driver for automationName 'Flutter' and platformName 'Android'
+2026-07-30 01:42:50:235 [Appium] The 'flutter' driver was installed and matched caps.
+2026-07-30 01:42:50:235 [Appium] Will require it at /home/runner/.appium/node_modules/appium-flutter-driver
+2026-07-30 01:42:50:236 [AppiumDriver@afc4] Appium v3.6.0 creating new FlutterDriver (v3.9.1) session
+2026-07-30 01:42:50:236 [AppiumDriver@afc4] Checking BaseDriver versions for Appium and FlutterDriver
+2026-07-30 01:42:50:236 [AppiumDriver@afc4] Appium's BaseDriver version is 10.7.2
+2026-07-30 01:42:50:236 [AppiumDriver@afc4] FlutterDriver's BaseDriver version is 10.7.2
+2026-07-30 01:42:50:238 [FlutterDriver@bb15] The following provided capabilities were not recognized by this driver:
+2026-07-30 01:42:50:238 [FlutterDriver@bb15]   deviceName
+2026-07-30 01:42:50:239 [FlutterDriver@bb15]   appPackage
+2026-07-30 01:42:50:239 [FlutterDriver@bb15]   appActivity
+2026-07-30 01:42:50:239 [FlutterDriver@bb15]   autoGrantPermissions
+2026-07-30 01:42:50:239 [42312b8a][FlutterDriver@bb15] Session created with session id: 42312b8a-34db-46f4-a065-a4c83e7773a4
+2026-07-30 01:42:50:239 [42312b8a][FlutterDriver@bb15] Starting an Android proxy session
+2026-07-30 01:42:50:242 [a0cd1aee][38;5;-35m[AndroidUiautomator2Driver@b93f] Session created with session id: a0cd1aee-c886-4313-8826-0d9cc5732a02
+2026-07-30 01:42:50:243 [a0cd1aee][ADB] Using 'adb' from '/usr/local/lib/android/sdk/platform-tools/adb'
+2026-07-30 01:42:50:247 [a0cd1aee][38;5;-35m[AndroidUiautomator2Driver@b93f] Retrieving device list
+2026-07-30 01:42:50:251 [a0cd1aee][38;5;-35m[AndroidUiautomator2Driver@b93f] Looking for a device with Android '13.0.0'
+2026-07-30 01:42:50:251 [a0cd1aee][ADB] Getting device platform version
+2026-07-30 01:42:50:280 [a0cd1aee][38;5;-35m[AndroidUiautomator2Driver@b93f] Using device: emulator-5554
+2026-07-30 01:42:50:280 [a0cd1aee][BaseDriver] Subscribing b93f3194-9be1-4972-9b92-9634bd79ea0c to topic 'uiautomator2:sessionUdidClaimed'
+2026-07-30 01:42:50:281 [a0cd1aee][BaseDriver] Subscribing b93f3194-9be1-4972-9b92-9634bd79ea0c to topic 'uiautomator2:sessionUdidContended'
+2026-07-30 01:42:50:281 [a0cd1aee][BaseDriver] Subscribing b93f3194-9be1-4972-9b92-9634bd79ea0c to topic 'uiautomator2:sessionUdidReleased'
+2026-07-30 01:42:50:283 [a0cd1aee][38;5;-12m[AndroidUiautomator2Driver@d9a9] Session 'a0cd1aee-c886-4313-8826-0d9cc5732a02' is starting on udid 'emulator-5554', which is already in use by another session identified by 7b656d1f-b026-4fcb-8a4b-1054cc22f291. Running multiple parallel sessions on the same device is highly discouraged. Consider enabling the Appium server's '--session-override' flag and make sure to properly quit the previous session before starting a new one. Terminating the obsolete session.
+2026-07-30 01:42:50:283 [a0cd1aee][BaseDriver] Unsubscribing d9a938a7-3334-48c8-9d56-c500de6b0a76 from topic 'uiautomator2:sessionUdidClaimed'
+2026-07-30 01:42:51:282 [7b656d1f][FlutterDriver@93a6] Connection to ws://127.0.0.1:43341/dtpKITEWuww=/ws closed
+2026-07-30 01:42:51:391 [a0cd1aee][38;5;-12m[AndroidUiautomator2Driver@d9a9] Restoring hidden api policy to the device default configuration
+2026-07-30 01:42:51:910 [a0cd1aee][BaseDriver] Unsubscribing b93f3194-9be1-4972-9b92-9634bd79ea0c from topic 'uiautomator2:sessionUdidContended'
+2026-07-30 01:42:51:910 [a0cd1aee][BaseDriver] Unsubscribing b93f3194-9be1-4972-9b92-9634bd79ea0c from topic 'uiautomator2:sessionUdidReleased'
+2026-07-30 01:42:51:913 [a0cd1aee][ADB] Using 'adb' from '/usr/local/lib/android/sdk/platform-tools/adb'
+2026-07-30 01:42:51:920 [a0cd1aee][BaseDriver] Using local app '/home/runner/work/KrishiIQ/KrishiIQ/mobile/build/app/outputs/flutter-apk/app-debug.apk'
+2026-07-30 01:42:52:491 [a0cd1aee][ADB] Getting device platform version
+2026-07-30 01:42:52:505 [a0cd1aee][38;5;-35m[AndroidUiautomator2Driver@b93f] Relaxing hidden api policy
+2026-07-30 01:42:52:586 [a0cd1aee][ADB] Using 'aapt2' from '/usr/local/lib/android/sdk/build-tools/37.0.0/aapt2'
+2026-07-30 01:42:52:749 [a0cd1aee][38;5;-35m[AndroidUiautomator2Driver@b93f] Server packages are not going to be (re)installed
+2026-07-30 01:42:52:823 [a0cd1aee][ADB] Adding packages ["io.appium.settings","io.appium.uiautomator2.server","io.appium.uiautomator2.server.test"] to Doze whitelist
+2026-07-30 01:42:53:266 [a0cd1aee][38;5;-35m[AndroidUiautomator2Driver@b93f] Performing fast reset on 'com.krishiiq.krishiiq'
+2026-07-30 01:42:53:517 [a0cd1aee][38;5;-35m[AndroidUiautomator2Driver@b93f] Starting UIAutomator2 server 10.3.3
+2026-07-30 01:42:53:517 [a0cd1aee][38;5;-35m[AndroidUiautomator2Driver@b93f] Using UIAutomator2 server from '/home/runner/.appium/node_modules/appium-flutter-driver/node_modules/appium-uiautomator2-driver/node_modules/appium-uiautomator2-server/apks/appium-uiautomator2-server-v10.3.3.apk' and test from '/home/runner/.appium/node_modules/appium-flutter-driver/node_modules/appium-uiautomator2-driver/node_modules/appium-uiautomator2-server/apks/appium-uiautomator2-server-debug-androidTest.apk'
+2026-07-30 01:42:53:517 [a0cd1aee][38;5;-35m[AndroidUiautomator2Driver@b93f] Waiting up to 30000ms for UiAutomator2 to be online...
+2026-07-30 01:42:53:527 [a0cd1aee][38;5;-35m[AndroidUiautomator2Driver@b93f] socket hang up
+2026-07-30 01:42:54:531 [a0cd1aee][38;5;-35m[AndroidUiautomator2Driver@b93f] socket hang up
+2026-07-30 01:42:55:575 [a0cd1aee][38;5;-35m[AndroidUiautomator2Driver@b93f] Determined the downstream protocol as 'W3C'
+2026-07-30 01:42:55:657 [a0cd1aee][38;5;-35m[AndroidUiautomator2Driver@b93f] Screen already unlocked, doing nothing
+2026-07-30 01:42:55:658 [a0cd1aee][38;5;-35m[AndroidUiautomator2Driver@b93f] Starting 'com.krishiiq.krishiiq/.MainActivityand waiting for 'com.krishiiq.krishiiq/.MainActivity'
+2026-07-30 01:43:01:129 [e0083531][FlutterDriver@ddb2] Error: No matched log found with 3000 ms interval up to 10 times. Increasing appium:retryBackoffTime and appium:maxRetryCount would help.
+    at /home/runner/.appium/node_modules/appium-flutter-driver/build/lib/sessions/log-monitor.js:32:19
+    at wrapped (/home/runner/.appium/node_modules/appium-flutter-driver/node_modules/asyncbox/build/cjs/lib/asyncbox.js:174:25)
+    at retry (/home/runner/.appium/node_modules/appium-flutter-driver/node_modules/asyncbox/build/cjs/lib/asyncbox.js:149:25)
+    at async retryInterval (/home/runner/.appium/node_modules/appium-flutter-driver/node_modules/asyncbox/build/cjs/lib/asyncbox.js:185:12)
+    at async LogMonitor.waitForLastMatchExist (/home/runner/.appium/node_modules/appium-flutter-driver/build/lib/sessions/log-monitor.js:28:16)
+    at async FlutterDriver.getObservatoryWsUri (/home/runner/.appium/node_modules/appium-flutter-driver/build/lib/sessions/android.js:74:25)
+    at async FlutterDriver.connectAndroidSession (/home/runner/.appium/node_modules/appium-flutter-driver/build/lib/sessions/android.js:45:30)
+    at async FlutterDriver.startAndroidSession (/home/runner/.appium/node_modules/appium-flutter-driver/build/lib/sessions/android.js:39:28)
+    at async FlutterDriver.createSession (/home/runner/.appium/node_modules/appium-flutter-driver/build/lib/sessions/session.js:40:51)
+    at async AppiumDriver.createSession (/opt/hostedtoolcache/node/20.20.2/x64/lib/node_modules/appium/build/lib/appium.js:270:44)
+    at async runCommandPromise (/opt/hostedtoolcache/node/20.20.2/x64/lib/node_modules/appium/node_modules/@appium/base-driver/build/lib/basedriver/driver.js:119:24)
+    at async AppiumDriver.executeCommand (/opt/hostedtoolcache/node/20.20.2/x64/lib/node_modules/appium/node_modules/@appium/base-driver/build/lib/basedriver/driver.js:160:15)
+    at async defaultBehavior (/opt/hostedtoolcache/node/20.20.2/x64/lib/node_modules/appium/build/lib/appium.js:579:24)
+    at async AppiumDriver.executeWrappedCommand (/opt/hostedtoolcache/node/20.20.2/x64/lib/node_modules/appium/build/lib/appium.js:687:22)
+    at async AppiumDriver.executeCommand (/opt/hostedtoolcache/node/20.20.2/x64/lib/node_modules/appium/build/lib/appium.js:595:21)
+    at async asyncHandler (/opt/hostedtoolcache/node/20.20.2/x64/lib/node_modules/appium/node_modules/@appium/base-driver/build/lib/protocol/protocol.js:393:25)
+
+2026-07-30 01:43:01:129 [e0083531][FlutterDriver@ddb2] Deleting Flutter Driver session
+2026-07-30 01:43:01:129 [e0083531][FlutterDriver@ddb2] Cleanup the port forward
+2026-07-30 01:43:02:240 [HTTP] <-- POST /wd/hub/session - - ms - -
+2026-07-30 01:43:02:574 [Appium] Received SIGTERM - shutting down
+2026-07-30 01:43:02:575 [AppiumDriver@afc4] Ending session, cause was 'The process has received SIGTERM signal'
+2026-07-30 01:43:02:575 [AppiumDriver@afc4] Removing session 'a533b4b1-d030-4efa-bdf3-338dada3a038' from our master session list
+2026-07-30 01:43:02:575 [FlutterDriver@93a6] Deleting Flutter Driver session
+2026-07-30 01:43:02:575 [FlutterDriver@93a6] Cleanup the port forward

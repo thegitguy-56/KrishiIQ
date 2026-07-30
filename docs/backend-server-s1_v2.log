@@ -1,0 +1,10 @@
+INFO:     Started server process [2201]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8001 (Press CTRL+C to quit)
+Empty database detected — seeding rich demo data...
+✅ Rich seed complete!
+   Officer: 9000000001 / officer123
+   Farmer:  9000000002 / farmer123  (+ 7 more farmers)
+   Admin:   9000000003 / admin123
+INFO:     127.0.0.1:50076 - "GET /health HTTP/1.1" 200 OK
