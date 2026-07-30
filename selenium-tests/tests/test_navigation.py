@@ -179,14 +179,14 @@ class TestNavigation:
         redirected = page.wait_for_url_contains("dashboard", timeout=8)
         if not redirected:
             # Backend not running — inject auth and navigate
-            driver.get(config.BASE_URL.rstrip("/") + "/login")
+            driver.get(config.BASE_URL.rstrip("/") + config.ROUTES["login"])
             time.sleep(0.3)
             driver.execute_script("""
                 localStorage.setItem('access_token', 'ci-fake-token');
                 localStorage.setItem('role', 'officer');
                 localStorage.setItem('user_id', '999');
             """)
-            driver.get(config.BASE_URL.rstrip("/") + "/dashboard")
+            driver.get(config.BASE_URL.rstrip("/") + config.ROUTES["dashboard"])
             time.sleep(1.5)
         assert "dashboard" in driver.current_url
 

@@ -151,7 +151,7 @@ def authenticated_officer(driver):
     as authenticated without a real API call.
     """
     # Navigate to the app so localStorage is scoped to the correct origin
-    driver.get(config.BASE_URL.rstrip("/") + "/login")
+    driver.get(config.BASE_URL.rstrip("/") + config.ROUTES["login"])
     time.sleep(1)
 
     # Try real login
@@ -169,11 +169,11 @@ def authenticated_officer(driver):
             "Injecting localStorage auth token to bypass login."
         )
         # Navigate back to app origin to inject token
-        driver.get(config.BASE_URL.rstrip("/") + "/login")
+        driver.get(config.BASE_URL.rstrip("/") + config.ROUTES["login"])
         time.sleep(0.5)
         _inject_auth(driver, role="officer")
         # Navigate to dashboard — React will read localStorage and allow access
-        driver.get(config.BASE_URL.rstrip("/") + "/dashboard")
+        driver.get(config.BASE_URL.rstrip("/") + config.ROUTES["dashboard"])
         time.sleep(1.5)
 
     yield driver
@@ -184,7 +184,7 @@ def authenticated_admin(driver):
     """
     Logs in as admin. Falls back to localStorage injection if backend is down.
     """
-    driver.get(config.BASE_URL.rstrip("/") + "/login")
+    driver.get(config.BASE_URL.rstrip("/") + config.ROUTES["login"])
     time.sleep(1)
 
     page = LoginPage(driver)
@@ -198,10 +198,10 @@ def authenticated_admin(driver):
         logger.warning(
             "Admin login did not redirect — injecting localStorage auth token."
         )
-        driver.get(config.BASE_URL.rstrip("/") + "/login")
+        driver.get(config.BASE_URL.rstrip("/") + config.ROUTES["login"])
         time.sleep(0.5)
         _inject_auth(driver, role="admin")
-        driver.get(config.BASE_URL.rstrip("/") + "/dashboard")
+        driver.get(config.BASE_URL.rstrip("/") + config.ROUTES["dashboard"])
         time.sleep(1.5)
 
     yield driver

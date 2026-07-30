@@ -2,6 +2,7 @@ import os
 import signal
 import time
 import json
+import urllib3.exceptions
 
 import pytest
 from appium import webdriver
@@ -49,17 +50,71 @@ AppiumConnection.set_timeout(settings.APPIUM_COMMAND_TIMEOUT)
 # every single remaining test in the shard with no recovery), we quit the
 # dead session and open a fresh one, once, right then.
 # --------------------------------------------------------------------------- #
+# Number of times to retry the initial Appium session creation and the
+# delay (in seconds) between attempts. Appium + the Flutter Observatory
+# handshake can take several seconds on a freshly-booted CI emulator;
+# a single attempt at the 12-second HTTP timeout was the most common
+# cause of the "all tests in shard ERRORed" failure mode seen in the
+# execution-results.json. Three attempts with a 5-second gap between
+# them gives the server up to ~36 s of additional ramp-up time while
+# keeping total worst-case startup cost under 60 s.
+_APPIUM_CONNECT_RETRIES = int(os.getenv("APPIUM_CONNECT_RETRIES", "3"))
+_APPIUM_CONNECT_RETRY_DELAY = float(os.getenv("APPIUM_CONNECT_RETRY_DELAY", "5"))
+
+
 class ResilientDriver:
     def __init__(self):
         self._raw = None
         self._create()
 
     def _create(self):
-        caps = build_capabilities()
-        options = UiAutomator2Options().load_capabilities(caps)
-        self._raw = webdriver.Remote(settings.APPIUM_SERVER_URL, options=options)
-        self._raw.implicitly_wait(settings.IMPLICIT_WAIT)
-        log.info("Appium session started: %s", self._raw.session_id)
+        """Open an Appium session, retrying on transient connection errors.
+
+        Retries handle the common CI race condition where the Appium server
+        process has started (ci_run_shard.sh confirmed /status returned 200)
+        but its internal Flutter-driver handshake with the just-installed APK
+        hasn't settled yet, causing the first NEW_SESSION command to time out.
+        Without retries, a single 12-second timeout fails the entire shard.
+        """
+        last_exc: Exception | None = None
+        for attempt in range(1, _APPIUM_CONNECT_RETRIES + 1):
+            try:
+                caps = build_capabilities()
+                options = UiAutomator2Options().load_capabilities(caps)
+                self._raw = webdriver.Remote(settings.APPIUM_SERVER_URL, options=options)
+                self._raw.implicitly_wait(settings.IMPLICIT_WAIT)
+                log.info(
+                    "Appium session started (attempt %d/%d): %s",
+                    attempt,
+                    _APPIUM_CONNECT_RETRIES,
+                    self._raw.session_id,
+                )
+                return  # success
+            except (
+                urllib3.exceptions.ReadTimeoutError,
+                urllib3.exceptions.NewConnectionError,
+                ConnectionRefusedError,
+                OSError,
+            ) as exc:  # noqa: BLE001
+                last_exc = exc
+                if attempt < _APPIUM_CONNECT_RETRIES:
+                    log.warning(
+                        "Appium session creation attempt %d/%d failed (%s) — "
+                        "retrying in %.0fs …",
+                        attempt,
+                        _APPIUM_CONNECT_RETRIES,
+                        exc,
+                        _APPIUM_CONNECT_RETRY_DELAY,
+                    )
+                    time.sleep(_APPIUM_CONNECT_RETRY_DELAY)
+                else:
+                    log.error(
+                        "Appium session creation failed after %d attempts: %s",
+                        _APPIUM_CONNECT_RETRIES,
+                        exc,
+                    )
+        # Re-raise so the driver fixture can catch it and skip the shard.
+        raise last_exc  # type: ignore[misc]
 
     def recreate(self):
         log.warning(
@@ -81,7 +136,23 @@ class ResilientDriver:
 
 @pytest.fixture(scope="session")
 def driver():
-    d = ResilientDriver()
+    """Session-scoped Appium driver.
+
+    If the Appium server is unreachable after all retries (e.g. because the
+    emulator runner crashed or the server never fully started), skip the
+    entire shard instead of leaving every test in the shard with an ERROR
+    outcome that reports the urllib3 stack trace instead of a meaningful
+    test failure. SKIP is the honest outcome — the tests were not run, not
+    that they failed.
+    """
+    try:
+        d = ResilientDriver()
+    except Exception as exc:  # noqa: BLE001
+        pytest.skip(
+            f"Appium server at {settings.APPIUM_SERVER_URL} is not reachable "
+            f"after {_APPIUM_CONNECT_RETRIES} attempts — skipping shard. "
+            f"Root cause: {exc}"
+        )
     yield d
     try:
         d.quit()
@@ -101,7 +172,16 @@ def _restart_app_between_tests(driver, request):
     full emulator/app reinstall). If the relaunch itself fails, the
     session has gone bad (see class docstring above) — recreate it once
     and retry the relaunch on the fresh session rather than ERRORing
-    every remaining test in the shard."""
+    every remaining test in the shard.
+
+    If the driver fixture itself was skipped (Appium unavailable), skip
+    this fixture too rather than raising an AttributeError on driver._raw.
+    """
+    # Guard: if ResilientDriver never successfully initialized (driver._raw
+    # is None), the shard was already skipped by the driver fixture — don't
+    # attempt any Appium calls here.
+    if getattr(driver, "_raw", None) is None:
+        pytest.skip("Driver session not available (Appium unreachable)")
     try:
         driver.terminate_app(settings.APP_PACKAGE)
     except Exception:  # noqa: BLE001

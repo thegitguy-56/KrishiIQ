@@ -1,7 +1,7 @@
 import time
 
 from utils.logger import get_logger
-from utils.retry import retry
+from utils.retry import retry, is_connection_error
 from utils.flutter_helpers import text_visible, key_visible
 
 log = get_logger(__name__)
@@ -64,6 +64,7 @@ class BasePage:
                 pass
         element.send_keys(text)
 
+    @retry(times=2, delay=1)
     def get_text(self, element) -> str:
         return element.text
 
@@ -80,8 +81,10 @@ class BasePage:
             try:
                 if element.is_displayed():
                     return True
-            except Exception:  # noqa: BLE001
-                pass
+            except Exception as exc:  # noqa: BLE001
+                if is_connection_error(exc) and hasattr(self.driver, "recreate"):
+                    log.warning("Connection error in is_present, recreating session...")
+                    self.driver.recreate()
             time.sleep(0.5)
         return False
 

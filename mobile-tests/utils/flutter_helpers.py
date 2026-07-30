@@ -10,8 +10,12 @@ used to do `"X" in driver.page_source`: it resolves a byText finder
 suite) instead of dumping/parsing page source.
 """
 import time
+import logging
 
 from appium_flutter_finder import FlutterElement
+from utils.retry import is_connection_error
+
+log = logging.getLogger(__name__)
 
 
 def text_visible(driver, finder, text: str, timeout: float = 5) -> bool:
@@ -21,7 +25,10 @@ def text_visible(driver, finder, text: str, timeout: float = 5) -> bool:
         try:
             _ = element.text
             return True
-        except Exception:  # noqa: BLE001
+        except Exception as exc:  # noqa: BLE001
+            if is_connection_error(exc) and hasattr(driver, "recreate"):
+                log.warning("Connection error in text_visible, recreating session...")
+                driver.recreate()
             time.sleep(0.4)
     return False
 
@@ -43,7 +50,9 @@ def key_visible(driver, finder, value_key: str, timeout: float = 5) -> bool:
         try:
             if element.is_displayed():
                 return True
-        except Exception:  # noqa: BLE001
-            pass
+        except Exception as exc:  # noqa: BLE001
+            if is_connection_error(exc) and hasattr(driver, "recreate"):
+                log.warning("Connection error in key_visible, recreating session...")
+                driver.recreate()
         time.sleep(0.4)
     return False

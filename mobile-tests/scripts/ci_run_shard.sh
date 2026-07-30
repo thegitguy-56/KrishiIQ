@@ -33,20 +33,34 @@ appium --base-path /wd/hub --log appium-server.log --log-level info &
 APPIUM_PID=$!
 
 READY=0
-for i in $(seq 1 30); do
+# Poll up to 90 s (45 × 2 s) for the Appium /status endpoint.
+# The Flutter Observatory handshake with the emulator typically adds
+# several seconds after the HTTP server itself reports ready; the
+# extra headroom reduces the race condition that caused the session-
+# create timeout to fail entire shards in earlier CI runs.
+for i in $(seq 1 45); do
   if curl -sf http://127.0.0.1:4723/wd/hub/status > /dev/null; then
     READY=1
     break
   fi
-  echo "Waiting for Appium... ($i/30)"
+  echo "Waiting for Appium... ($i/45)"
   sleep 2
 done
 
 if [ "$READY" -ne 1 ]; then
-  echo "::error::Appium server failed to start"
+  echo "::error::Appium server failed to start within 90 s"
+  echo "--- Last 40 lines of appium-server.log ---"
+  tail -n 40 ../appium-server.log 2>/dev/null || true
   kill "$APPIUM_PID" || true
   exit 1
 fi
+
+# Give the Flutter Observatory one extra moment to bind after the
+# /status endpoint goes green — without this, the very first
+# NEW_SESSION request arrives before the driver plugin is fully ready
+# and is the most common single-attempt timeout in this shard setup.
+echo "Appium ready; waiting 2 s for Flutter Observatory to bind..."
+sleep 2
 
 echo "== Running Appium test suite (shard ${SHARD}/8) =="
 cd mobile-tests

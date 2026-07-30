@@ -38,7 +38,7 @@ def _login_with_fallback(driver, role: str = "officer") -> None:
     redirected = page.wait_for_url_contains("dashboard", timeout=8)
     if not redirected:
         # Inject auth token directly into localStorage
-        driver.get(config.BASE_URL.rstrip("/") + "/login")
+        driver.get(config.BASE_URL.rstrip("/") + config.ROUTES["login"])
         time.sleep(0.5)
         fake_token = f"ci-fake-token-{role}-{int(time.time())}"
         driver.execute_script(f"""
@@ -49,7 +49,7 @@ def _login_with_fallback(driver, role: str = "officer") -> None:
             localStorage.setItem('user_id', '999');
             localStorage.setItem('preferred_language', 'en');
         """)
-        driver.get(config.BASE_URL.rstrip("/") + "/dashboard")
+        driver.get(config.BASE_URL.rstrip("/") + config.ROUTES["dashboard"])
         time.sleep(1.5)
 
 

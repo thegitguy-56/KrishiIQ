@@ -46,14 +46,20 @@ JSON_REPORT     = os.path.join(REPORTS_DIR, "execution-results.json")
 SUMMARY_MD      = os.path.join(REPORTS_DIR, "summary.md")
 
 # ─── App Routes ───────────────────────────────────────────────────────────────
+# The web-dashboard uses React Router's HashRouter (see web-dashboard/src/main.jsx),
+# so all client-side routes live under the fragment identifier (#/...).
+# Using path-based routes (/login, /dashboard, …) causes GitHub Pages to return
+# a 404 → redirect-via-query-param round trip that is slower and sometimes
+# doesn't resolve correctly in headless Chrome. Hash routes resolve immediately
+# inside the already-loaded SPA without any server round trip.
 ROUTES = {
-    "login":          "/login",
-    "dashboard":      "/dashboard",
-    "farmers":        "/farmers",
-    "map":            "/map",
-    "disease_alerts": "/disease-alerts",
-    "analytics":      "/analytics",
-    "unauthorized":   "/unauthorized",
+    "login":          "/#/login",
+    "dashboard":      "/#/dashboard",
+    "farmers":        "/#/farmers",
+    "map":            "/#/map",
+    "disease_alerts": "/#/disease-alerts",
+    "analytics":      "/#/analytics",
+    "unauthorized":   "/#/unauthorized",
 }
 
 # ─── Viewport Breakpoints ─────────────────────────────────────────────────────
